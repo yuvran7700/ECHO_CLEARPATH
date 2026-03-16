@@ -5,7 +5,6 @@ from typing import Any, Dict, Optional
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
-
 from src.services.sagemaker_service import (
     SageMakerClassificationService,
     SageMakerServiceError,
@@ -18,7 +17,9 @@ AWS_REGION = os.getenv("AWS_REGION", "ap-southeast-2")
 DYNAMODB_TABLE_NAME = os.getenv("DYNAMODB_TABLE_NAME")
 
 if not DYNAMODB_TABLE_NAME:
-    raise ValueError("Missing required environment variable: DYNAMODB_TABLE_NAME")
+    raise ValueError(
+        "Missing required environment variable: DYNAMODB_TABLE_NAME"
+    )
 
 dynamodb = boto3.resource("dynamodb", region_name=AWS_REGION)
 table = dynamodb.Table(DYNAMODB_TABLE_NAME)
@@ -107,7 +108,8 @@ def get_item_by_date(date_value: str) -> Optional[Dict[str, Any]]:
         }
 
     :param date_value: str -> Date partition key.
-    :returns _: Optional[Dict[str, Any]] -> The DynamoDB item if found, else None.
+    :returns _: Optional[Dict[str, Any]]
+        The DynamoDB item if found, else None.
     """
     try:
         response = table.get_item(Key={"Date": date_value})
@@ -137,16 +139,23 @@ def update_item_classification(
         - tweets_processed
 
 
-    :param date_value: str -> Date partition key.
-    :param final_status: str -> Final daily aggregated classification, expected to be
+    :param date_value: str
+        Date partition key.
+    :param final_status: str
+        Final daily aggregated classification, expected to be
                                 'cancelled' or 'delayed'.
-    :param predictions: Optional[list] -> List of per-tweet predictions returned from SageMaker.
-    :param tweets_processed : Optional[int] -> Number of tweets sent for inference.
-    :returns _: Dict[str, Any] -> Updated DynamoDB item.
+    :param predictions: Optional[list]
+        List of per-tweet predictions returned from SageMaker.
+    :param tweets_processed : Optional[int]
+        Number of tweets sent for inference.
+    :returns _: Dict[str, Any]
+        Updated DynamoDB item.
     """
     update_expression = "SET #status = :status"
     expression_attribute_names = {"#status": "status"}
-    expression_attribute_values: Dict[str, Any] = {":status": final_status.upper()}
+    expression_attribute_values: Dict[str, Any] = {
+        ":status": final_status.upper()
+    }
 
     if predictions is not None:
         update_expression += ", predictions = :predictions"
@@ -228,7 +237,8 @@ def lambda_handler(event: Dict[str, Any]) -> Dict[str, Any]:
         return build_response(
             400,
             {
-                "message": f"Record for date {date_value} has no valid text content.",
+                "message": f"Record for date {date_value} " +
+                           "has no valid text content.",
                 "date": date_value,
             },
         )
@@ -261,7 +271,8 @@ def lambda_handler(event: Dict[str, Any]) -> Dict[str, Any]:
     final_status = classification_result.get("final_status")
 
     logger.info(
-        "Classification complete for date=%s, tweets_processed=%d, final_status=%s",
+        "Classification complete for " +
+        "date=%s, tweets_processed=%d, final_status=%s",
         date_value,
         len(cleaned_tweets),
         final_status,
@@ -291,7 +302,8 @@ def lambda_handler(event: Dict[str, Any]) -> Dict[str, Any]:
         return build_response(
             500,
             {
-                "message": "Classification succeeded, but DynamoDB update failed.",
+                "message": "Classification succeeded, " +
+                           "but DynamoDB update failed.",
                 "error": str(exc),
                 "date": date_value,
                 "predictions": predictions,

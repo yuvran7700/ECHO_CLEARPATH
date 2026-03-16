@@ -6,7 +6,6 @@ from typing import Any, Dict, List, Optional
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
-
 from src.parser.text_normalisation import normalise_text
 
 logger = logging.getLogger(__name__)
@@ -55,20 +54,20 @@ class SageMakerClassificationService:
             If not provided, reads from SAGEMAKER_BATCH_SIZE and defaults
             to 32.
         """
-        self.endpoint_name = (endpoint_name
-                              or
-                              os.getenv("SAGEMAKER_ENDPOINT_NAME"))
-        self.region_name = (region_name
-                            or
-                            os.getenv("AWS_REGION", "ap-southeast-2"))
-        self.batch_size = (batch_size
-                           or
-                           int(os.getenv("SAGEMAKER_BATCH_SIZE", "32")))
+        self.endpoint_name = endpoint_name or os.getenv(
+            "SAGEMAKER_ENDPOINT_NAME"
+        )
+        self.region_name = region_name or os.getenv(
+            "AWS_REGION", "ap-southeast-2"
+        )
+        self.batch_size = batch_size or int(
+            os.getenv("SAGEMAKER_BATCH_SIZE", "32")
+        )
 
         if not self.endpoint_name:
             raise SageMakerServiceError(
-                "Missing required environment variable: " +
-                "SAGEMAKER_ENDPOINT_NAME"
+                "Missing required environment variable: "
+                + "SAGEMAKER_ENDPOINT_NAME"
             )
 
         if self.batch_size <= 0:
@@ -127,8 +126,9 @@ class SageMakerClassificationService:
             If predictions are invalid or contain unsupported labels.
         """
         if not isinstance(predictions, list):
-            raise SageMakerServiceError("Predictions must be " +
-                                        "returned as a list.")
+            raise SageMakerServiceError(
+                "Predictions must be " + "returned as a list."
+            )
 
         normalised_predictions: List[str] = []
 
@@ -137,8 +137,8 @@ class SageMakerClassificationService:
 
             if label not in {"delayed", "cancelled"}:
                 raise SageMakerServiceError(
-                    "Unexpected prediction label " +
-                    f"received from SageMaker: {label}"
+                    "Unexpected prediction label "
+                    + f"received from SageMaker: {label}"
                 )
 
             normalised_predictions.append(label)
@@ -169,8 +169,8 @@ class SageMakerClassificationService:
                 cleaned_tweets.append(cleaned.strip())
 
         logger.info(
-            "Prepared %d tweets for inference " +
-            "after splitting and normalisation.",
+            "Prepared %d tweets for inference "
+            + "after splitting and normalisation.",
             len(cleaned_tweets),
         )
 
@@ -231,8 +231,8 @@ class SageMakerClassificationService:
 
         if len(predictions) != len(batch):
             raise SageMakerServiceError(
-                "Mismatch between number of input " +
-                "tweets and number of predictions."
+                "Mismatch between number of input "
+                + "tweets and number of predictions."
             )
 
         return predictions
@@ -281,8 +281,9 @@ class SageMakerClassificationService:
         if not predictions:
             return None
 
-        normalised = [str(pred).strip().lower()
-                      for pred in predictions if pred]
+        normalised = [
+            str(pred).strip().lower() for pred in predictions if pred
+        ]
 
         if "cancelled" in normalised:
             return "cancelled"
