@@ -11,9 +11,15 @@ from sklearn.metrics import accuracy_score, classification_report
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--model-dir", type=str, default=os.environ.get("SM_MODEL_DIR"))
-    parser.add_argument("--train", type=str, default=os.environ.get("SM_CHANNEL_TRAIN"))
-    parser.add_argument("--val", type=str, default=os.environ.get("SM_CHANNEL_VAL"))
+    parser.add_argument(
+        "--model-dir", type=str, default=os.environ.get("SM_MODEL_DIR")
+    )
+    parser.add_argument(
+        "--train", type=str, default=os.environ.get("SM_CHANNEL_TRAIN")
+    )
+    parser.add_argument(
+        "--val", type=str, default=os.environ.get("SM_CHANNEL_VAL")
+    )
 
     args = parser.parse_args()
 
@@ -31,7 +37,12 @@ if __name__ == "__main__":
 
     pipeline = Pipeline(
         [
-            ("tfidf", TfidfVectorizer(ngram_range=(1, 2), min_df=2, max_features=5000)),
+            (
+                "tfidf",
+                TfidfVectorizer(
+                    ngram_range=(1, 2), min_df=2, max_features=5000
+                ),
+            ),
             ("clf", LinearSVC()),
         ]
     )
