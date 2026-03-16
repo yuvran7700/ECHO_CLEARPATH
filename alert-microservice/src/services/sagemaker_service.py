@@ -9,7 +9,6 @@ from botocore.exceptions import BotoCoreError, ClientError
 
 from src.parser.text_normalisation import normalise_text
 
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -52,15 +51,9 @@ class SageMakerClassificationService:
         :param batch_size int -> Maximum number of tweets sent to SageMaker in one invocation.
                                     If not provided, reads from SAGEMAKER_BATCH_SIZE and defaults to 32.
         """
-        self.endpoint_name = endpoint_name or os.getenv(
-            "SAGEMAKER_ENDPOINT_NAME"
-        )
-        self.region_name = region_name or os.getenv(
-            "AWS_REGION", "ap-southeast-2"
-        )
-        self.batch_size = batch_size or int(
-            os.getenv("SAGEMAKER_BATCH_SIZE", "32")
-        )
+        self.endpoint_name = endpoint_name or os.getenv("SAGEMAKER_ENDPOINT_NAME")
+        self.region_name = region_name or os.getenv("AWS_REGION", "ap-southeast-2")
+        self.batch_size = batch_size or int(os.getenv("SAGEMAKER_BATCH_SIZE", "32"))
 
         if not self.endpoint_name:
             raise SageMakerServiceError(
@@ -119,9 +112,7 @@ class SageMakerClassificationService:
         :raises SageMakerServiceError -> If predictions are invalid or contain unsupported labels.
         """
         if not isinstance(predictions, list):
-            raise SageMakerServiceError(
-                "Predictions must be returned as a list."
-            )
+            raise SageMakerServiceError("Predictions must be returned as a list.")
 
         normalised_predictions: List[str] = []
 
@@ -266,9 +257,7 @@ class SageMakerClassificationService:
         if not predictions:
             return None
 
-        normalised = [
-            str(pred).strip().lower() for pred in predictions if pred
-        ]
+        normalised = [str(pred).strip().lower() for pred in predictions if pred]
 
         if "cancelled" in normalised:
             return "cancelled"
