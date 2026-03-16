@@ -237,8 +237,8 @@ def lambda_handler(event: Dict[str, Any]) -> Dict[str, Any]:
         return build_response(
             400,
             {
-                "message": f"Record for date {date_value} " +
-                           "has no valid text content.",
+                "message": f"Record for date {date_value} "
+                + "has no valid text content.",
                 "date": date_value,
             },
         )
@@ -271,8 +271,8 @@ def lambda_handler(event: Dict[str, Any]) -> Dict[str, Any]:
     final_status = classification_result.get("final_status")
 
     logger.info(
-        "Classification complete for " +
-        "date=%s, tweets_processed=%d, final_status=%s",
+        "Classification complete for "
+        + "date=%s, tweets_processed=%d, final_status=%s",
         date_value,
         len(cleaned_tweets),
         final_status,
@@ -302,8 +302,8 @@ def lambda_handler(event: Dict[str, Any]) -> Dict[str, Any]:
         return build_response(
             500,
             {
-                "message": "Classification succeeded, " +
-                           "but DynamoDB update failed.",
+                "message": "Classification succeeded, "
+                + "but DynamoDB update failed.",
                 "error": str(exc),
                 "date": date_value,
                 "predictions": predictions,
