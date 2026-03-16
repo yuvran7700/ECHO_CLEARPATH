@@ -30,9 +30,9 @@ class SageMakerClassificationService:
     3. invoking the SageMaker endpoint in batches
     4. aggregating the per-tweet predictions into one final daily status
 
-    Expected endpoint input -> {"texts": ["tweet one", "tweet two"]} (json)
+    Expected endpoint input -> {"texts": ["tweet one", "tweet two"]}(json)
 
-    Expected endpoint output -> {"predictions": ["cancelled", "delayed"]} (json)
+    Expected endpoint output -> {"predictions": ["cancelled", "delayed"]}(json)
     """
 
     def __init__(
@@ -42,22 +42,33 @@ class SageMakerClassificationService:
         batch_size: int = None,
     ) -> None:
         """
-        :param endpoint_name str -> The SageMaker endpoint name. If not provided, reads from the
-                                        SAGEMAKER_ENDPOINT_NAME environment variable.
+        :param endpoint_name: str
+            The SageMaker endpoint name. If not provided, reads from the
+            SAGEMAKER_ENDPOINT_NAME environment variable.
 
-        :param region_name str -> AWS region for the SageMaker runtime client. If not provided,
-                                        reads from AWS_REGION and defaults to ap-southeast-2.
+        :param region_name: str
+            AWS region for the SageMaker runtime client. If not provided,
+            reads from AWS_REGION and defaults to ap-southeast-2.
 
-        :param batch_size int -> Maximum number of tweets sent to SageMaker in one invocation.
-                                    If not provided, reads from SAGEMAKER_BATCH_SIZE and defaults to 32.
+        :param batch_size: int
+            Maximum number of tweets sent to SageMaker in one invocation.
+            If not provided, reads from SAGEMAKER_BATCH_SIZE and defaults
+            to 32.
         """
-        self.endpoint_name = endpoint_name or os.getenv("SAGEMAKER_ENDPOINT_NAME")
-        self.region_name = region_name or os.getenv("AWS_REGION", "ap-southeast-2")
-        self.batch_size = batch_size or int(os.getenv("SAGEMAKER_BATCH_SIZE", "32"))
+        self.endpoint_name = (endpoint_name
+                              or
+                              os.getenv("SAGEMAKER_ENDPOINT_NAME"))
+        self.region_name = (region_name
+                            or
+                            os.getenv("AWS_REGION", "ap-southeast-2"))
+        self.batch_size = (batch_size
+                           or
+                           int(os.getenv("SAGEMAKER_BATCH_SIZE", "32")))
 
         if not self.endpoint_name:
             raise SageMakerServiceError(
-                "Missing required environment variable: SAGEMAKER_ENDPOINT_NAME"
+                "Missing required environment variable: " +
+                "SAGEMAKER_ENDPOINT_NAME"
             )
 
         if self.batch_size <= 0:
@@ -78,7 +89,8 @@ class SageMakerClassificationService:
         The DynamoDB text field is expected to look something like:
             "tweet one... EOT\\n tweet two... EOT\\n tweet three..."
 
-        `EOT` is a text str we have used here as it will help signify the end of a tweet:
+        `EOT` is a text str we have used here as
+        it will help signify the end of a tweet:
             i.e. EOT = End of Tweet
 
         :param daily_text: str
@@ -105,14 +117,18 @@ class SageMakerClassificationService:
         - delayed
         - cancelled
 
-        :param predictions: List[str] -> Raw preds returned by the endpoint
+        :param predictions: List[str]
+            Raw preds returned by the endpoint
 
-        :returns [str] -> Lowercased and validated predictions.
+        :returns [str]
+            Lowercased and validated predictions.
 
-        :raises SageMakerServiceError -> If predictions are invalid or contain unsupported labels.
+        :raises SageMakerServiceError
+            If predictions are invalid or contain unsupported labels.
         """
         if not isinstance(predictions, list):
-            raise SageMakerServiceError("Predictions must be returned as a list.")
+            raise SageMakerServiceError("Predictions must be " +
+                                        "returned as a list.")
 
         normalised_predictions: List[str] = []
 
@@ -121,7 +137,8 @@ class SageMakerClassificationService:
 
             if label not in {"delayed", "cancelled"}:
                 raise SageMakerServiceError(
-                    f"Unexpected prediction label received from SageMaker: {label}"
+                    "Unexpected prediction label " +
+                    f"received from SageMaker: {label}"
                 )
 
             normalised_predictions.append(label)
@@ -137,9 +154,11 @@ class SageMakerClassificationService:
         2. normalise each tweet using the parser normalisation function
         3. remove empty strings after cleaning
 
-        :param daily_text: str -> Raw concatenated tweet blob from DynamoDB.
+        :param daily_text: str
+            Raw concatenated tweet blob from DynamoDB.
 
-        :returns List[str] -> Cleaned tweets ready for SageMaker inference.
+        :returns _: List[str]
+            Cleaned tweets ready for SageMaker inference.
         """
         raw_tweets = self.split_daily_text_into_tweets(daily_text)
 
@@ -150,7 +169,8 @@ class SageMakerClassificationService:
                 cleaned_tweets.append(cleaned.strip())
 
         logger.info(
-            "Prepared %d tweets for inference after splitting and normalisation.",
+            "Prepared %d tweets for inference " +
+            "after splitting and normalisation.",
             len(cleaned_tweets),
         )
 
@@ -160,11 +180,14 @@ class SageMakerClassificationService:
         """
         Invokes the SageMaker endpoint on a single batch of tweet texts.
 
-        :param batch: List[str] -> List of cleaned tweets.
+        :param batch: List[str]
+            List of cleaned tweets.
 
-        :returns List[str] -> Validated predictions for this batch.
+        :returns _: List[str]
+            Validated predictions for this batch.
 
-        :raises SageMakerServiceError -> If invocation fails or the response format is invalid.
+        :raises SageMakerServiceError:
+            If invocation fails or the response format is invalid.
         """
         if not batch:
             return []
@@ -208,7 +231,8 @@ class SageMakerClassificationService:
 
         if len(predictions) != len(batch):
             raise SageMakerServiceError(
-                "Mismatch between number of input tweets and number of predictions."
+                "Mismatch between number of input " +
+                "tweets and number of predictions."
             )
 
         return predictions
@@ -228,7 +252,7 @@ class SageMakerClassificationService:
         all_predictions: List[str] = []
 
         for start_index in range(0, len(texts), self.batch_size):
-            batch = texts[start_index : start_index + self.batch_size]
+            batch = texts[start_index: start_index + self.batch_size]
             batch_predictions = self._invoke_single_batch(batch)
             all_predictions.extend(batch_predictions)
 
@@ -250,14 +274,15 @@ class SageMakerClassificationService:
         - else if any prediction is 'delayed' -> final status is 'delayed'
         - else -> None
 
-        :param predictions : List[str] -> List of per-tweet labels.
+        :param predictions: List[str] -> List of per-tweet labels.
 
-        :returns Optional[str] -> 'cancelled', 'delayed', or None
+        :returns _: Optional[str] -> 'cancelled', 'delayed', or None
         """
         if not predictions:
             return None
 
-        normalised = [str(pred).strip().lower() for pred in predictions if pred]
+        normalised = [str(pred).strip().lower()
+                      for pred in predictions if pred]
 
         if "cancelled" in normalised:
             return "cancelled"
@@ -271,7 +296,8 @@ class SageMakerClassificationService:
         """
         Full end-to-end classification flow for one DynamoDB daily record.
 
-        :param daily_text : str -> Concatenated tweets from the DynamoDB `text` field.
+        :param daily_text: str
+            Concatenated tweets from the DynamoDB `text` field.
 
 
         :returns Dict[str, Any] -> A structured result containing:
