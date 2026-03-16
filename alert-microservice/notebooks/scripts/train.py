@@ -29,14 +29,12 @@ if __name__ == "__main__":
     X_val = val_df["text"].astype(str)
     y_val = val_df["classification"].astype(str)
 
-    pipeline = Pipeline([
-        ("tfidf", TfidfVectorizer(
-            ngram_range=(1, 2),
-            min_df=2,
-            max_features=5000
-        )),
-        ("clf", LinearSVC())
-    ])
+    pipeline = Pipeline(
+        [
+            ("tfidf", TfidfVectorizer(ngram_range=(1, 2), min_df=2, max_features=5000)),
+            ("clf", LinearSVC()),
+        ]
+    )
 
     pipeline.fit(X_train, y_train)
 

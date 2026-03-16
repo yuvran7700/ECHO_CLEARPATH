@@ -19,6 +19,7 @@ class SageMakerServiceError(Exception):
     Raised when there is a failure in preparing data, invoking the SageMaker
     endpoint, or parsing the endpoint response.
     """
+
     pass
 
 
@@ -70,7 +71,6 @@ class SageMakerClassificationService:
             region_name=self.region_name,
         )
 
-
     @staticmethod
     def split_daily_text_into_tweets(daily_text: str) -> List[str]:
         """
@@ -96,7 +96,6 @@ class SageMakerClassificationService:
 
         tweets = [part.strip() for part in parts if part and part.strip()]
         return tweets
-
 
     @staticmethod
     def validate_predictions(predictions: List[str]) -> List[str]:
@@ -130,7 +129,6 @@ class SageMakerClassificationService:
 
         return normalised_predictions
 
-
     def prepare_tweets_for_inference(self, daily_text: str) -> List[str]:
         """
         Full preprocessing flow for one DynamoDB daily text field.
@@ -158,7 +156,6 @@ class SageMakerClassificationService:
         )
 
         return cleaned_tweets
-
 
     def _invoke_single_batch(self, batch: List[str]) -> List[str]:
         """
@@ -232,7 +229,7 @@ class SageMakerClassificationService:
         all_predictions: List[str] = []
 
         for start_index in range(0, len(texts), self.batch_size):
-            batch = texts[start_index:start_index + self.batch_size]
+            batch = texts[start_index : start_index + self.batch_size]
             batch_predictions = self._invoke_single_batch(batch)
             all_predictions.extend(batch_predictions)
 
@@ -309,5 +306,3 @@ class SageMakerClassificationService:
         )
 
         return result
-
-

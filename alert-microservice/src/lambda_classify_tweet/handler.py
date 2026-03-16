@@ -23,10 +23,12 @@ if not DYNAMODB_TABLE_NAME:
 dynamodb = boto3.resource("dynamodb", region_name=AWS_REGION)
 table = dynamodb.Table(DYNAMODB_TABLE_NAME)
 
+
 class DynamoDBServiceError(Exception):
     """
     Raised when DynamoDB read or write operations fail.
     """
+
     pass
 
 
@@ -40,9 +42,7 @@ def build_response(status_code: int, body: Dict[str, Any]) -> Dict[str, Any]:
     """
     return {
         "statusCode": status_code,
-        "headers": {
-            "Content-Type": "application/json"
-        },
+        "headers": {"Content-Type": "application/json"},
         "body": json.dumps(body, default=str),
     }
 
@@ -146,9 +146,7 @@ def update_item_classification(
     """
     update_expression = "SET #status = :status"
     expression_attribute_names = {"#status": "status"}
-    expression_attribute_values: Dict[str, Any] = {
-        ":status": final_status.upper()
-    }
+    expression_attribute_values: Dict[str, Any] = {":status": final_status.upper()}
 
     if predictions is not None:
         update_expression += ", predictions = :predictions"
@@ -173,6 +171,7 @@ def update_item_classification(
         ) from exc
 
     return response.get("Attributes", {})
+
 
 def lambda_handler(event: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -312,4 +311,3 @@ def lambda_handler(event: Dict[str, Any]) -> Dict[str, Any]:
             "updated_item": updated_item,
         },
     )
-
