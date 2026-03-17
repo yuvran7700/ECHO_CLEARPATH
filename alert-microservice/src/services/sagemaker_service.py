@@ -252,7 +252,7 @@ class SageMakerClassificationService:
         all_predictions: List[str] = []
 
         for start_index in range(0, len(texts), self.batch_size):
-            batch = texts[start_index: start_index + self.batch_size]
+            batch = texts[start_index : start_index + self.batch_size]
             batch_predictions = self._invoke_single_batch(batch)
             all_predictions.extend(batch_predictions)
 

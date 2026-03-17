@@ -6,6 +6,7 @@ Credits:
     Initial implementation adapted from the TwitterAPI.io Advanced Search
     documentation: https://twitterapi.io/blog/scrape-twitter-history-tweet
 """
+
 import os
 import time
 
