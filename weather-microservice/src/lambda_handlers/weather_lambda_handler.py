@@ -12,7 +12,7 @@ def weather_lambda_handler(event, context):
 
     if not date:
         return {
-            "statusCode": 404,
+            "statusCode": 400,
             "body": json.dumps({"error": "Missing date parameter"}),
         }
 
