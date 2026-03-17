@@ -2,7 +2,7 @@ name: Alert CI
 
 on:
   pull_request:
-    branches: 
+    branches:
       - "main"
       - "develop/alert-microservice"
     paths:
@@ -24,26 +24,25 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
+          pip install -r alert-microservice/requirements.txt
 
-      # 1. LINTING
-      - name: Run Global Linting
+      # 1. LINTING + FORMATTING CHECK
+      - name: Run Ruff
         run: |
-          black --check --line-length=79 alert-microservice/
-          isort --check-only --profile=black alert-microservice/
-          flake8 --max-line-length=79 alert-microservice/
+          ruff check alert-microservice/
+          ruff format --check alert-microservice/
 
-      # 2. UNIT TESTING 
+      # 2. UNIT TESTING
       - name: Run unit tests
         run: pytest alert-microservice/tests/unit/
         continue-on-error: true
-        
-      # 2. INTEGRATION TESTING 
+
+      # 3. INTEGRATION TESTING
       - name: Run integration tests
         run: pytest alert-microservice/tests/integration/
         continue-on-error: true
 
-      # COVERAGE TESTING
+      # 4. COVERAGE TESTING
       - name: Run coverage
         run: |
           coverage run -m pytest alert-microservice/tests/

@@ -109,7 +109,6 @@ def add_tweets_to_dynamoDB(parsed_tweets: str) -> None:
 
 # TEST MAIN TO CHECK IF SERVICE RETURNS TWEETS CORRECTLY FOR PAGNIATION
 if __name__ == "__main__":
-
     # tweets = fetch_tweets()
     add_tweets_to_dynamoDB(CLEANED_TWEET_FILE)
 
