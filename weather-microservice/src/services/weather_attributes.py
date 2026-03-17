@@ -115,8 +115,3 @@ def process_collected_s3_object(key: str, eTag: str):
 
     put_record(Item)
 
-
-def return_weather_record(date: str):
-
-    rec = get_record(date)
-    return json.dumps(rec, default=decimal_converter, indent=4)
