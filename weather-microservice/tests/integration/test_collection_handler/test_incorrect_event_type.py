@@ -29,7 +29,7 @@ def test_new_record_works():
     write_file(key, content)
 
     event = generate_trig_event(
-        "ObjectCreated:Put",
+        "s3:ObjectRemoved:Delete",
         "clearpath-weather-index",
         key,
         "ckfajs;kf",
@@ -38,5 +38,4 @@ def test_new_record_works():
     collection_lambda_handler(event, None)
 
     result = get_record(date)
-
-    assert result["date"] == date
+    assert result is None

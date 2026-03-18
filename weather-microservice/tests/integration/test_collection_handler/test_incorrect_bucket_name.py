@@ -30,7 +30,7 @@ def test_new_record_works():
 
     event = generate_trig_event(
         "ObjectCreated:Put",
-        "clearpath-weather-index",
+        "clearpath-weather-old",
         key,
         "ckfajs;kf",
     )
@@ -38,5 +38,4 @@ def test_new_record_works():
     collection_lambda_handler(event, None)
 
     result = get_record(date)
-
-    assert result["date"] == date
+    assert result is None

@@ -17,7 +17,7 @@ def weather_lambda_handler(event, context):
         }
 
     try:
-        bool(datetime.strptime(date, "%Y-%m-%d"))
+        datetime.strptime(date, "%Y-%m-%d")
     except ValueError:
         return {
             "statusCode": 400,

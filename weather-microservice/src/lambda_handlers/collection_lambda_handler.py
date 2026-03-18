@@ -6,7 +6,7 @@ from src.repositories.db_repo import get_record
 from src.services.weather_attributes import process_collected_s3_object
 
 
-def collected_lambda_handler(event, context):
+def collection_lambda_handler(event, context):
     for record in event.get("Records", []):
         bucket = str(record["s3"]["bucket"]["name"])
         if bucket != S3_BUCKET_NAME:
@@ -28,7 +28,7 @@ def collected_lambda_handler(event, context):
 
         date = Path(key).stem
         try:
-            bool(datetime.strptime(date, "%Y-%m-%d"))
+            datetime.strptime(date, "%Y-%m-%d")
         except Exception:
             print("Invalid date key format")
             continue
