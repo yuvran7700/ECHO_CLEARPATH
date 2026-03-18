@@ -6,7 +6,6 @@ from src.utils.weather_utils import decimal_converter
 
 
 def weather_lambda_handler(event, context):
-
     params = event.get("queryStringParameters") or {}
     date = params.get("date", None)
 

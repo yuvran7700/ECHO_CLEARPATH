@@ -20,7 +20,6 @@ def generate_event(event_name, bucket_name, key, eTag):
 
 
 def good_test():
-
     event = generate_event(
         "ObjectCreated:Put",
         "clearpath-weather-data",

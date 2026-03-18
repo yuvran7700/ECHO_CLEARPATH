@@ -2,7 +2,7 @@ name: Alert CI
 
 on:
   pull_request:
-    branches: 
+    branches:
       - "main"
       - "develop/alert-microservice"
     paths:
@@ -33,11 +33,11 @@ jobs:
           isort --check-only --profile=black alert-microservice/
           flake8 --max-line-length=79 alert-microservice/
 
-      # 2. UNIT TESTING 
+      # 2. UNIT TESTING
       - name: Run unit tests
         run: pytest alert-microservice/tests/unit/
 
-      # 2. INTEGRATION TESTING 
+      # 2. INTEGRATION TESTING
       - name: Run integration tests
         run: pytest alert-microservice/tests/integration/
         continue-on-error: true

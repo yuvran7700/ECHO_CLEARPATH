@@ -52,7 +52,17 @@ git checkout -b feat/weather/req-num/your-feature-name
    - Ensure at least **one team member** reviews and approves
    - Evidence of comments/discussion must be visible in the PR before merging
 
+**Optional:** To manually run pre-commit checks on specific files or folders:
+```bash
+# Single file
+pre-commit run --files weather-microservice/app.py
 
+# Multiple files
+pre-commit run --files weather-microservice/app.py weather-microservice/utils.py
+
+# Entire folder
+pre-commit run --files weather-microservice/**/*
+```
 ---
 
 ### 3. Commit Message Standards
@@ -81,7 +91,6 @@ cd ClearPath
 
 # 2. Install pre-commit globally
 pip install pre-commit
-pre-commit install
 sh util/setup.sh
 
 # 3. Set up your microservice environment (only for the service you are working on)
