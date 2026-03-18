@@ -76,7 +76,7 @@ class TwitterClient:
                         headers=self.headers,
                         params=params
                     )
-
+                    
                     response.raise_for_status()
                     data = response.json()
 
@@ -84,20 +84,25 @@ class TwitterClient:
                     has_next = data.get("has_next_page", False)
                     cursor = data.get("next_cursor", None)
 
-                    # Deduplicate tweets
-                    new_tweets = []
                     for t in tweets:
-                        tid = t.get("id")
-                        if tid not in seen_ids:
-                            seen_ids.add(tid)
-                            new_tweets.append(t)
-                            all_tweets.append(t)
+                        all_tweets.append(t)
 
-                    print(
-                        f"API returned {len(tweets)} tweets, "
-                        f"{len(new_tweets)} new, "
-                        f"total: {len(all_tweets)}"
-                    )
+                    # LEAVE DEPULICATION TO SERVICE?
+                    # # Deduplicate tweets
+                    # new_tweets = []
+                    # for t in tweets:
+                    #     tid = t.get("id")
+                    #     if tid not in seen_ids:
+                    #         seen_ids.add(tid)
+                    #         new_tweets.append(t)
+                    #         all_tweets.append(t)
+
+                    #DEBUGGING PRINT
+                    # print(
+                    #     f"API returned {len(tweets)} tweets, "
+                    #     f"{len(new_tweets)} new, "
+                    #     f"total: {len(all_tweets)}"
+                    # )
 
                     if not has_next:
                         return all_tweets
@@ -106,7 +111,7 @@ class TwitterClient:
 
                 except requests.exceptions.RequestException as e:
                     retry_count += 1
-                    print(f"  Error: {e}, retry {retry_count}/{max_retries}")
+                    print(f"  Error: {e}, retry {retry_count}/{self.max_retries}")
 
                     time.sleep(2**retry_count)
                     if retry_count == self.max_retries:

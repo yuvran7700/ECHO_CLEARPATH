@@ -82,6 +82,7 @@ def fetch_tweets() -> list:
         # Be polite to the API
         time.sleep(1)
 
+    #For all tweets, removes all the duplicates
     unique_tweets = list({t["id"]: t for t in all_tweets}.values())
     # print(f"DEBUG: Total unique tweets: {len(unique_tweets)}")
 
@@ -103,7 +104,7 @@ def add_tweets_to_dynamoDB(parsed_tweets: str) -> None:
             "text": record["master_text"],
             "status": None,
         }
-        put_record(Item=item)
+        put_record(item)
 
 
 # TEST MAIN TO CHECK IF SERVICE RETURNS TWEETS CORRECTLY FOR PAGNIATION
