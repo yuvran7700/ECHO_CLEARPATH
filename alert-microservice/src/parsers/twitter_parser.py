@@ -25,7 +25,7 @@ def format_date(created_at: str):
     return date_formatted
 
 
-def extract_metadata(tweets: dict):
+def extract_metadata(tweets: list):
     """
     Extract only essential metadata from tweets.
 
@@ -33,7 +33,7 @@ def extract_metadata(tweets: dict):
     Removes all other metadata (likes, retweets, IDs, etc.)
 
     Args:
-        tweets (dict): Dictionary of tweet objects from JSON
+        tweets (list): list of tweet objects
 
     Returns:
         list: List of dictionaries with account_name, date, and text fields

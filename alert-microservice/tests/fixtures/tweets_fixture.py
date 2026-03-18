@@ -1,3 +1,65 @@
+# tests/fixtures/tweet_fixtures
+import pytest
+
+
+@pytest.fixture
+def sample_tweets_on_same_day():
+    return [
+        {
+            "account_name": "T1 Sydney Trains",
+            "date": "2025-10-03",
+            "text": ("this is tweet 1 on same day"),
+        },
+        {
+            "account_name": "T1 Sydney Trains",
+            "date": "2025-10-03",
+            "text": ("this is tweet 2 on same day"),
+        },
+        {
+            "account_name": "T1 Sydney Trains",
+            "date": "2025-10-04",
+            "text": ("this is tweet on another day"),
+        },
+    ]
+
+
+@pytest.fixture
+def sample_collated_tweets_on_same_date():
+    return [
+        {
+            "account_name": "T1 Sydney Trains",
+            "date": "2025-10-03",
+            "text": (
+                "this is tweet 1 on same day EOT this is tweet 2 on same day"
+            ),
+        },
+        {
+            "account_name": "T1 Sydney Trains",
+            "date": "2025-10-04",
+            "text": ("this is tweet on another day"),
+        },
+    ]
+
+
+@pytest.fixture
+def sample_extracted_tweet():
+    return [
+        {
+            "account_name": "T1 Sydney Trains",
+            "date": "2026-02-02",
+            "text": (
+                "Allow extra travel time due to an issue with a freight train "
+                "at Werrington. \n\nStops may change at short notice and "
+                "you may "
+                "have to change trains to continue your trip. \n\n Check "
+                "transport apps or information screens for service updates. "
+                "https://t.co/b5pREumZ9Q"
+            ),
+        }
+    ]
+
+
+@pytest.fixture
 def sample_tweet_raw_response():
     return {
         "type": "tweet",
