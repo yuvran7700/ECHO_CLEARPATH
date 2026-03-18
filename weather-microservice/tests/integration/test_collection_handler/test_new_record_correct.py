@@ -62,13 +62,11 @@ def test_new_record_works():
         == attri["3pm"]["humidity"]
     )
 
-    print(result)
-
-    # assert result["weatherSeverity"] is not None
-    # assert result["weatherSeverity"]["rainSeverity"] == "No rain"
-    # assert result["weatherSeverity"]["sunSeverity"] == "Cloudy"
-    # assert result["weatherSeverity"]["tempSeverity"] == "Warm"
-    # assert result["weatherSeverity"]["windSeverity"] == "Breezy"
+    assert result["weatherSeverity"] is not None
+    assert result["weatherSeverity"]["rainSeverity"] == "No rain"
+    assert result["weatherSeverity"]["sunSeverity"] == "Cloudy"
+    assert result["weatherSeverity"]["tempSeverity"] == "Warm"
+    assert result["weatherSeverity"]["windSeverity"] == "Breezy"
 
     delete_file(key)
     delete_record(date)
