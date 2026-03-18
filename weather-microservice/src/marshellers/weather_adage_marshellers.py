@@ -1,15 +1,4 @@
-import logging
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-
 def format_db_adage(record: dict, date):
-    print("hi")
-    print(record)
-    logger.info("print")
-    logger.info(record["rainfall"])
-
     formatted = {
         "data_source": "ClearPath",
         "dataset_type": "Weather observations and severity",
