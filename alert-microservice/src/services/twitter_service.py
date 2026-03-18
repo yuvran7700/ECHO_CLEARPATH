@@ -4,25 +4,32 @@ Service layer for orchestrating tweet retrieval from the Twitter client.
 Handles pagination logic and exports data to local storage for analysis.
 """
 
-import json
-import os
 import time
 from datetime import datetime, timedelta
 
-from dependencies.db_client import alert_table
-from repositories.twitter_client import BASE_QUERY, search_tweets_by_query
-from utils.json_helpers import create_dict_from_json
+from src.dependencies.twitter_client import TwitterClient
+from src.parsers.twitter_parser import parse_tweets
+from src.repositories.db_repo import put_record
 
-TWEETS_FILE = "tweets_jan_feb_2025.json"
+TWEETS_FILE = "TESTREFACTOR.json"
 # Date range to fetch
-START_DATE = datetime.strptime("2025-01-01", "%Y-%m-%d")
-END_DATE = datetime.strptime("2025-02-28", "%Y-%m-%d")
+START_DATE = datetime.strptime("2026-02-01", "%Y-%m-%d")
+END_DATE = datetime.strptime("2026-03-18", "%Y-%m-%d")
 
-# SPRINT 1: CALL STATIC FILE
-CLEANED_TWEET_FILE = "processed_tweets.json"
+BASE_QUERY = (
+    "(from:T1SydneyTrains) "
+    "(delay OR disruption OR cancelled OR suspended "
+    "OR delayed OR allow extra time)"
+)
 
 
-def generate_weekly_queries(start_date: datetime, end_date: datetime):
+def procress_tweets_and_upload_to_dynamo_db():
+    all_tweets = fetch_tweets()
+    formatted_tweets = parse_tweets(all_tweets)
+    add_tweets_to_dynamoDB(formatted_tweets)
+
+
+def generate_weekly_queries(start_date: datetime, end_date: datetime) -> list:
     """
     Generate weekly query ranges from start_date to end_date.
     Each query covers 7 days.
@@ -49,53 +56,34 @@ def fetch_tweets() -> list:
     """
     Retrieves multiple pages of tweets to ensure a larger data sample.
 
-    Args:
-        api_key: The authentication key for the Twitter API wrapper.
-
     Returns:
-        list: A combined list of tweet objects from all fetched pages.
+        list: A combined list of unique tweet objects from all fetched pages.
     """
 
-    DATA_FOLDER = "data"
-    os.makedirs(DATA_FOLDER, exist_ok=True)
-    file_path = os.path.join(DATA_FOLDER, TWEETS_FILE)
-
     all_tweets = []
-
-    start = START_DATE.strftime("%Y-%m-%d")
-    end = END_DATE.strftime("%Y-%m-%d")
-    print(f"\nFetching tweets from {start} to {end}")
+    client = TwitterClient()
 
     queries = generate_weekly_queries(START_DATE, END_DATE)
-    print(f"Generated {len(queries)} weekly queries\n")
+    print(f"DEBUG: Generated {len(queries)} weekly queries\n")
 
-    for i, q in enumerate(queries, 1):
-        # Extract dates from query for display
-        date_range = q.split("since:")[1].split(" until:")
-        print(f"[{i}/{len(queries)}] Week: {date_range[0]} to {date_range[1]}")
-
+    for q in queries:
         # Fetch tweets for this week
-        week_tweets = search_tweets_by_query(q)
+        week_tweets = client.fetch_tweets_by_query(q)
         all_tweets.extend(week_tweets)
-        print(f"  Collected {len(week_tweets)} tweets\n")
+        print(f"DEBUG: Collected {len(week_tweets)} tweets\n")
 
         # Be polite to the API
         time.sleep(1)
 
+    # For all tweets, removes all the duplicates
     unique_tweets = list({t["id"]: t for t in all_tweets}.values())
-    print(f"Total unique tweets: {len(unique_tweets)}")
-
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(unique_tweets, f, indent=2, ensure_ascii=False)
-
-    print(f"Saved to {TWEETS_FILE}")
+    print(f"DEBUG: Total unique tweets: {len(unique_tweets)}")
 
     return unique_tweets
 
 
-def add_tweets_to_dynamoDB(parsed_tweets: str) -> None:
-
-    data = create_dict_from_json(parsed_tweets)
+def add_tweets_to_dynamoDB(parsed_tweets: list) -> None:
+    data = parsed_tweets
 
     for record in data:
         item = {
@@ -104,12 +92,9 @@ def add_tweets_to_dynamoDB(parsed_tweets: str) -> None:
             "text": record["master_text"],
             "status": None,
         }
-        alert_table.put_item(Item=item)
+        put_record(item)
 
 
-# TEST MAIN TO CHECK IF SERVICE RETURNS TWEETS CORRECTLY FOR PAGNIATION
+# # TEST MAIN TO CHECK IF SERVICE RETURNS TWEETS CORRECTLY FOR PAGNIATION
 if __name__ == "__main__":
-    # tweets = fetch_tweets()
-    add_tweets_to_dynamoDB(CLEANED_TWEET_FILE)
-
-    # print(f"Fetched {len(tweets)} tweets")
+    procress_tweets_and_upload_to_dynamo_db()
