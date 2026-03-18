@@ -15,15 +15,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 API_KEY = os.getenv("TWITTER_API_KEY")
+
 # The endpoint for advanced search provided by the third-party Twitter API
 # wrapper.
 BASE_URL = "https://api.twitterapi.io/twitter/tweet/advanced_search"
-
-# Search query focusing on T1 Sydney Trains account for specific disruption
-# keywords.
-# Excludes retweets to minimize duplicate alert data.
-
-# Base query (without dates)
 
 class TwitterClient: 
     """client for collected queries from external API"""
@@ -35,20 +30,15 @@ class TwitterClient:
         self.max_retries = max_retries
 
     def fetch_tweets_by_query(self, query: str) -> list:
-        """
-        Fetches the latest tweets matching the transit disruption query.
+        """ 
+        Fetches the tweets based on the query created in service 
 
         Args:
-            query: updated query with dates for each week
+            query (str): search query with dynamic start and end dates 
 
         Returns:
-            dict: The JSON response containing tweet data and pagination metadata.
-
-        Raises:
-            requests.exceptions.HTTPError: If the API request fails
-            (e.g., 401 Unauthorized).
+            list: returns raw response json 
         """
-
         all_tweets = []
         # seen_ids = set()
         cursor = None
@@ -80,23 +70,6 @@ class TwitterClient:
 
                     for t in tweets:
                         all_tweets.append(t)
-
-                    # LEAVE DEPULICATION TO SERVICE?
-                    # # Deduplicate tweets
-                    # new_tweets = []
-                    # for t in tweets:
-                    #     tid = t.get("id")
-                    #     if tid not in seen_ids:
-                    #         seen_ids.add(tid)
-                    #         new_tweets.append(t)
-                    #         all_tweets.append(t)
-
-                    #DEBUGGING PRINT
-                    # print(
-                    #     f"API returned {len(tweets)} tweets, "
-                    #     f"{len(new_tweets)} new, "
-                    #     f"total: {len(all_tweets)}"
-                    # )
 
                     if not has_next:
                         return all_tweets

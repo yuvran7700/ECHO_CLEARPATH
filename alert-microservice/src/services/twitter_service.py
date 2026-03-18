@@ -24,8 +24,8 @@ BASE_QUERY = (
     "OR delayed OR allow extra time)"
 )
 
-# SPRINT 1: CALL STATIC FILE
-CLEANED_TWEET_FILE = "processed_tweets.json"
+# # SPRINT 1: CALL STATIC FILE
+# CLEANED_TWEET_FILE = "processed_tweets.json"
 
 def generate_weekly_queries(start_date: datetime, end_date: datetime):
     """
@@ -49,7 +49,6 @@ def generate_weekly_queries(start_date: datetime, end_date: datetime):
         current = next_week
     return queries
 
-
 def fetch_tweets() -> list:
     """
     Retrieves multiple pages of tweets to ensure a larger data sample.
@@ -67,30 +66,23 @@ def fetch_tweets() -> list:
 
     all_tweets = []
     client = TwitterClient()
-    
-    # start = START_DATE.strftime("%Y-%m-%d")
-    # end = END_DATE.strftime("%Y-%m-%d")
-    # print(f"\n DEBUG: Fetching tweets from {start} to {end}")
 
     queries = generate_weekly_queries(START_DATE, END_DATE)
     print(f"DEBUG: Generated {len(queries)} weekly queries\n")
 
     for q in queries:
-        # Extract dates from query for display
-        # date_range = q.split("since:")[1].split(" until:")
-        # print(f"DEBUG: [{i}/{len(queries)}] Week: {date_range[0]} to {date_range[1]}")
-
         # Fetch tweets for this week
         week_tweets = client.fetch_tweets_by_query(q)
         all_tweets.extend(week_tweets)
-        # print(f"DEBUG: Collected {len(week_tweets)} tweets\n")
+        print(f"DEBUG: Collected {len(week_tweets)} tweets\n")
 
         # Be polite to the API
         time.sleep(1)
 
     #For all tweets, removes all the duplicates
     unique_tweets = list({t["id"]: t for t in all_tweets}.values())
-    # print(f"DEBUG: Total unique tweets: {len(unique_tweets)}")
+    print(f"DEBUG: Total unique tweets: {len(unique_tweets)}")
+
 
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(unique_tweets, f, indent=2, ensure_ascii=False)
@@ -113,10 +105,10 @@ def add_tweets_to_dynamoDB(parsed_tweets: str) -> None:
         put_record(item)
 
 
-# TEST MAIN TO CHECK IF SERVICE RETURNS TWEETS CORRECTLY FOR PAGNIATION
-if __name__ == "__main__":
+# # TEST MAIN TO CHECK IF SERVICE RETURNS TWEETS CORRECTLY FOR PAGNIATION
+# if __name__ == "__main__":
 
-    tweets = fetch_tweets()
-    # add_tweets_to_dynamoDB(CLEANED_TWEET_FILE)
+#     tweets = fetch_tweets()
+#     # add_tweets_to_dynamoDB(CLEANED_TWEET_FILE)
 
-    # print(f"Fetched {len(tweets)} tweets")
+#     # print(f"Fetched {len(tweets)} tweets")
