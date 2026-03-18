@@ -17,13 +17,13 @@ def good_test():
     print("hi")
 
     key = "weather_collected/3999-12-12.json"
+
     delete_file(key)
     delete_record("3999-12-12")
     with open("tests/3999-12-12.json", "r") as f:
         content = json.load(f)
 
     write_file(key, content)
-    delete_file("weather_collected/6999-12-12.json")
 
     event = generate_trig_event(
         "ObjectCreated:Put",
@@ -34,11 +34,10 @@ def good_test():
 
     weather_event = {"queryStringParameters": {"date": "3999-12-12"}}
 
-    print("hi", flush=True)
     collected_lambda_handler(event, None)
 
     result = weather_lambda_handler(weather_event, None)
-    logger.info("weather result: %s", result)
+    logger.info(result)
 
 
 def bad_test():
