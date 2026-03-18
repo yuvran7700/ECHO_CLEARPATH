@@ -28,12 +28,6 @@ BASE_URL = "https://api.twitterapi.io/twitter/tweet/advanced_search"
 class TwitterClient: 
     """client for collected queries from external API"""
 
-    BASE_QUERY = (
-        "(from:T1SydneyTrains) "
-        "(delay OR disruption OR cancelled OR suspended "
-        "OR delayed OR allow extra time)"
-    )
-
     def __init__(self, max_retries: int = 3):
         self.api_url = BASE_URL
         self.api_key = os.getenv("TWITTER_API_KEY")

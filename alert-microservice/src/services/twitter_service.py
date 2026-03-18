@@ -9,14 +9,20 @@ import os
 import time
 from datetime import datetime, timedelta
 
-from repositories.db_repo import put_record
-from dependencies.twitter_client import TwitterClient
-from utils.json_helpers import create_dict_from_json
+from src.repositories.db_repo import put_record
+from src.dependencies.twitter_client import TwitterClient
+from src.utils.json_helpers import create_dict_from_json
 
-TWEETS_FILE = "tweets_jan_feb_2025.json"
+TWEETS_FILE = "TESTREFACTOR.json"
 # Date range to fetch
 START_DATE = datetime.strptime("2026-02-01", "%Y-%m-%d")
 END_DATE = datetime.strptime("2026-03-18", "%Y-%m-%d")
+
+BASE_QUERY = (
+    "(from:T1SydneyTrains) "
+    "(delay OR disruption OR cancelled OR suspended "
+    "OR delayed OR allow extra time)"
+)
 
 # SPRINT 1: CALL STATIC FILE
 CLEANED_TWEET_FILE = "processed_tweets.json"
@@ -61,7 +67,7 @@ def fetch_tweets() -> list:
 
     all_tweets = []
     client = TwitterClient()
-
+    
     # start = START_DATE.strftime("%Y-%m-%d")
     # end = END_DATE.strftime("%Y-%m-%d")
     # print(f"\n DEBUG: Fetching tweets from {start} to {end}")
@@ -89,7 +95,7 @@ def fetch_tweets() -> list:
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(unique_tweets, f, indent=2, ensure_ascii=False)
 
-    # print(f"DEBUG: Saved to {TWEETS_FILE}")
+    print(f"DEBUG: Saved to {TWEETS_FILE}")
 
     return unique_tweets
 
