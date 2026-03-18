@@ -81,12 +81,3 @@ def parse_tweets(tweets):
     collated = collate_tweets(extracted)
     # SAFE-GUARD: SAVES LOCAL TWEETS
     return collated
-
-
-# if __name__ == "__main__":
-#     tweets = create_dict_from_json(TWEETS_FILE)
-#     extracted = extract_metadata(tweets)
-
-#     collated = collate_tweets(extracted)
-#     # save_tweets_to_file(extracted, "data/extracted_tweets.json")
-#     save_tweets_to_file(collated, "data/processed_tweets.json")

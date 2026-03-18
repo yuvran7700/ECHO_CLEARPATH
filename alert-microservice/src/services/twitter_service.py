@@ -10,8 +10,8 @@ import time
 from datetime import datetime, timedelta
 
 from src.dependencies.twitter_client import TwitterClient
+from src.parsers.twitter_parser import parse_tweets
 from src.repositories.db_repo import put_record
-from src.utils.json_helpers import create_dict_from_json
 
 TWEETS_FILE = "TESTREFACTOR.json"
 # Date range to fetch
@@ -24,11 +24,14 @@ BASE_QUERY = (
     "OR delayed OR allow extra time)"
 )
 
-# # SPRINT 1: CALL STATIC FILE
-# CLEANED_TWEET_FILE = "processed_tweets.json"
+
+def procress_tweets_and_upload_to_dynamo_db():
+    all_tweets = fetch_tweets()
+    formatted_tweets = parse_tweets(all_tweets)
+    add_tweets_to_dynamoDB(formatted_tweets)
 
 
-def generate_weekly_queries(start_date: datetime, end_date: datetime):
+def generate_weekly_queries(start_date: datetime, end_date: datetime) -> list:
     """
     Generate weekly query ranges from start_date to end_date.
     Each query covers 7 days.
@@ -93,8 +96,8 @@ def fetch_tweets() -> list:
     return unique_tweets
 
 
-def add_tweets_to_dynamoDB(parsed_tweets: str) -> None:
-    data = create_dict_from_json(parsed_tweets)
+def add_tweets_to_dynamoDB(parsed_tweets: list) -> None:
+    data = parsed_tweets
 
     for record in data:
         item = {
@@ -107,9 +110,10 @@ def add_tweets_to_dynamoDB(parsed_tweets: str) -> None:
 
 
 # # TEST MAIN TO CHECK IF SERVICE RETURNS TWEETS CORRECTLY FOR PAGNIATION
-# if __name__ == "__main__":
+if __name__ == "__main__":
+    procress_tweets_and_upload_to_dynamo_db()
 
-#     tweets = fetch_tweets()
-#     # add_tweets_to_dynamoDB(CLEANED_TWEET_FILE)
+    # tweets = fetch_tweets()
+    # add_tweets_to_dynamoDB(CLEANED_TWEET_FILE)
 
-#     # print(f"Fetched {len(tweets)} tweets")
+    # print(f"Fetched {len(tweets)} tweets")
