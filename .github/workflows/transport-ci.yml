@@ -2,7 +2,7 @@ name: transport CI
 
 on:
   pull_request:
-    branches: 
+    branches:
       - "main"
       - "develop/transport-microservice"
     paths:
@@ -29,15 +29,14 @@ jobs:
       # 1. LINTING
       - name: Run Global Linting
         run: |
-          black --check --line-length=79 transport-microservice/
-          isort --check-only --profile=black transport-microservice/
-          flake8 --max-line-length=79 transport-microservice/
+          ruff format --check transport-microservice/
+          ruff check transport-microservice/
 
-      # 2. UNIT TESTING 
+      # 2. UNIT TESTING
       - name: Run unit tests
         run: pytest transport-microservice/tests/unit/
 
-      # 2. INTEGRATION TESTING 
+      # 2. INTEGRATION TESTING
       - name: Run integration tests
         run: pytest transport-microservice/tests/integration/
         continue-on-error: true
