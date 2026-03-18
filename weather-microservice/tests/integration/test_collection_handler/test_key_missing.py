@@ -9,7 +9,6 @@ from src.repositories.s3_repo import (
     delete_file,
     write_file,
 )
-from src.utils.weather_utils import decimal_converter
 
 from tests.utils.weather_collect_utils import generate_trig_event
 
@@ -35,17 +34,14 @@ def test_new_record_works():
     event = generate_trig_event(
         "ObjectCreated:Put",
         "clearpath-weather-index",
-        key,
+        "",
         "ckfajs;kf",
     )
 
     collection_lambda_handler(event, None)
 
     result = get_record(date)
-    attri = content["events"][0]["event_attributes"]
-    assert result["date"] == date
-    assert result["rainfall"] == attri["rainfall"]
-    assert decimal_converter(result["tempMin"]) == attri["tempMin"]
+    assert result is None
 
     delete_file(key)
     delete_record(date)
