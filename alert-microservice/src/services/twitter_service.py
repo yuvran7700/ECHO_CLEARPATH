@@ -4,8 +4,6 @@ Service layer for orchestrating tweet retrieval from the Twitter client.
 Handles pagination logic and exports data to local storage for analysis.
 """
 
-import json
-import os
 import time
 from datetime import datetime, timedelta
 
@@ -58,16 +56,9 @@ def fetch_tweets() -> list:
     """
     Retrieves multiple pages of tweets to ensure a larger data sample.
 
-    Args:
-        api_key: The authentication key for the Twitter API wrapper.
-
     Returns:
-        list: A combined list of tweet objects from all fetched pages.
+        list: A combined list of unique tweet objects from all fetched pages.
     """
-
-    DATA_FOLDER = "data"
-    os.makedirs(DATA_FOLDER, exist_ok=True)
-    file_path = os.path.join(DATA_FOLDER, TWEETS_FILE)
 
     all_tweets = []
     client = TwitterClient()
@@ -88,11 +79,6 @@ def fetch_tweets() -> list:
     unique_tweets = list({t["id"]: t for t in all_tweets}.values())
     print(f"DEBUG: Total unique tweets: {len(unique_tweets)}")
 
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(unique_tweets, f, indent=2, ensure_ascii=False)
-
-    print(f"DEBUG: Saved to {TWEETS_FILE}")
-
     return unique_tweets
 
 
@@ -112,8 +98,3 @@ def add_tweets_to_dynamoDB(parsed_tweets: list) -> None:
 # # TEST MAIN TO CHECK IF SERVICE RETURNS TWEETS CORRECTLY FOR PAGNIATION
 if __name__ == "__main__":
     procress_tweets_and_upload_to_dynamo_db()
-
-    # tweets = fetch_tweets()
-    # add_tweets_to_dynamoDB(CLEANED_TWEET_FILE)
-
-    # print(f"Fetched {len(tweets)} tweets")
