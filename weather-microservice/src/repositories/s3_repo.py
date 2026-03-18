@@ -17,3 +17,7 @@ def write_file(s3_key: str, data: dict) -> str:
         ContentType="application/json",
     )
     return f"s3://{S3_BUCKET_NAME}/{s3_key}"
+
+
+def delete_file(s3_key: str):
+    s3_client.delete_object(Bucket=S3_BUCKET_NAME, Key=s3_key)
