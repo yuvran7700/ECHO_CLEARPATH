@@ -10,17 +10,16 @@ import time
 from datetime import datetime, timedelta
 
 from repositories.db_repo import put_record
-from dependencies.twitter_client import BASE_QUERY, search_tweets_by_query
+from dependencies.twitter_client import TwitterClient
 from utils.json_helpers import create_dict_from_json
 
 TWEETS_FILE = "tweets_jan_feb_2025.json"
 # Date range to fetch
-START_DATE = datetime.strptime("2025-01-01", "%Y-%m-%d")
-END_DATE = datetime.strptime("2025-02-28", "%Y-%m-%d")
+START_DATE = datetime.strptime("2026-02-01", "%Y-%m-%d")
+END_DATE = datetime.strptime("2026-03-18", "%Y-%m-%d")
 
 # SPRINT 1: CALL STATIC FILE
 CLEANED_TWEET_FILE = "processed_tweets.json"
-
 
 def generate_weekly_queries(start_date: datetime, end_date: datetime):
     """
@@ -61,21 +60,22 @@ def fetch_tweets() -> list:
     file_path = os.path.join(DATA_FOLDER, TWEETS_FILE)
 
     all_tweets = []
+    client = TwitterClient()
 
     # start = START_DATE.strftime("%Y-%m-%d")
     # end = END_DATE.strftime("%Y-%m-%d")
     # print(f"\n DEBUG: Fetching tweets from {start} to {end}")
 
     queries = generate_weekly_queries(START_DATE, END_DATE)
-    # print(f"DEBUG: Generated {len(queries)} weekly queries\n")
+    print(f"DEBUG: Generated {len(queries)} weekly queries\n")
 
-    for q in enumerate(queries, 1):
+    for q in queries:
         # Extract dates from query for display
         # date_range = q.split("since:")[1].split(" until:")
         # print(f"DEBUG: [{i}/{len(queries)}] Week: {date_range[0]} to {date_range[1]}")
 
         # Fetch tweets for this week
-        week_tweets = search_tweets_by_query(q)
+        week_tweets = client.fetch_tweets_by_query(q)
         all_tweets.extend(week_tweets)
         # print(f"DEBUG: Collected {len(week_tweets)} tweets\n")
 
@@ -110,7 +110,7 @@ def add_tweets_to_dynamoDB(parsed_tweets: str) -> None:
 # TEST MAIN TO CHECK IF SERVICE RETURNS TWEETS CORRECTLY FOR PAGNIATION
 if __name__ == "__main__":
 
-    # tweets = fetch_tweets()
-    add_tweets_to_dynamoDB(CLEANED_TWEET_FILE)
+    tweets = fetch_tweets()
+    # add_tweets_to_dynamoDB(CLEANED_TWEET_FILE)
 
     # print(f"Fetched {len(tweets)} tweets")

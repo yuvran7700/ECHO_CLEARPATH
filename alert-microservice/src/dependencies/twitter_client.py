@@ -34,13 +34,13 @@ class TwitterClient:
         "OR delayed OR allow extra time)"
     )
 
-    def __init__(self, api_url, api_key, max_retries: int = 3):
+    def __init__(self, max_retries: int = 3):
         self.api_url = BASE_URL
-        self.api_key = api_key or os.getenv("TWITTER_API_KEY")
+        self.api_key = os.getenv("TWITTER_API_KEY")
         self.headers = {"X-API-Key": self.api_key}
         self.max_retries = max_retries
 
-    def search_(self, query: str) -> list:
+    def fetch_tweets_by_query(self, query: str) -> list:
         """
         Fetches the latest tweets matching the transit disruption query.
 
@@ -56,7 +56,7 @@ class TwitterClient:
         """
 
         all_tweets = []
-        seen_ids = set()
+        # seen_ids = set()
         cursor = None
 
         while True:
