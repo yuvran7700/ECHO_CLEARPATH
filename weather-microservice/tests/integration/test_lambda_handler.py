@@ -14,8 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 def good_test():
-    print("hi")
-
     key = "weather_collected/3999-12-12.json"
 
     delete_file(key)

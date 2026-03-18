@@ -9,10 +9,7 @@ from src.services.weather_attributes import process_collected_s3_object
 def collected_lambda_handler(event, context):
     for record in event.get("Records", []):
         bucket = str(record["s3"]["bucket"]["name"])
-        print(bucket)
-        print(S3_BUCKET_NAME)
         if bucket != S3_BUCKET_NAME:
-            print("hi")
             continue
 
         event_type = str(record["eventName"])
@@ -33,8 +30,7 @@ def collected_lambda_handler(event, context):
         try:
             bool(datetime.strptime(date, "%Y-%m-%d"))
         except Exception:
-            e = "Invalid date key format"
-            print(e)
+            print("Invalid date key format")
             continue
 
         eTag = str(record["s3"]["object"]["eTag"])
@@ -46,8 +42,7 @@ def collected_lambda_handler(event, context):
         try:
             existing["eTag"]
         except Exception:
-            e = "DynamodDB record must have eTag attached"
-            print(e)
+            print("DynamodDB record must have eTag attached")
             process_collected_s3_object(key, eTag)
             continue
 
