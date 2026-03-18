@@ -21,10 +21,10 @@ def process_collected_s3_object(key: str, eTag: str):
     rainfall = attri["rainfall"]
     sunshineHours = attri["sunshineHours"]
     windGustSpeed = attri["windGustSpeed"]
-    amTemp = attri["temp"]
-    amHumidity = attri["humidity"]
-    pmTemp = attri["temp"]
-    pmHumidity = attri["humidity"]
+    amTemp = attri["9am"]["temp"]
+    amHumidity = attri["9am"]["humidity"]
+    pmTemp = attri["3pm"]["temp"]
+    pmHumidity = attri["3pm"]["humidity"]
 
     temp_severity = temperature_classification(
         tempMin, tempMax, amTemp, pmTemp
@@ -35,7 +35,7 @@ def process_collected_s3_object(key: str, eTag: str):
     humidity_severity = humidity_classification(amHumidity, pmHumidity)
 
     Item = {
-        "Date": date,
+        "date": date,
         "eTag": eTag,
         "tempMin": Decimal(str(tempMin)),
         "tempMax": Decimal(str(tempMax)),
@@ -50,12 +50,12 @@ def process_collected_s3_object(key: str, eTag: str):
             "temp": Decimal(str(pmTemp)),
             "humidity": Decimal(str(pmHumidity)),
         },
-        "Weather_Severity": {
-            "Temp_Severity": str(temp_severity),
-            "Rain_Severity": str(rain_severity),
-            "Sun_Severity": str(sunshine_severity),
-            "Wind_Severity": str(wind_severity),
-            "Humidity_Severity": str(humidity_severity),
+        "weatherSeverity": {
+            "tempSeverity": str(temp_severity),
+            "rainSeverity": str(rain_severity),
+            "sunSeverity": str(sunshine_severity),
+            "windSeverity": str(wind_severity),
+            "humiditySeverity": str(humidity_severity),
         },
     }
 
