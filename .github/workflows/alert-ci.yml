@@ -29,9 +29,8 @@ jobs:
       # 1. LINTING
       - name: Run Global Linting
         run: |
-          black --check --line-length=79 alert-microservice/
-          isort --check-only --profile=black alert-microservice/
-          flake8 --max-line-length=79 alert-microservice/
+          ruff format --check alert-microservice/
+          ruff check alert-microservice/
 
       # 2. UNIT TESTING
       - name: Run unit tests
