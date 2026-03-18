@@ -39,3 +39,6 @@ def test_new_record_works():
 
     result = get_record(date)
     assert result is None
+
+    delete_file(key)
+    delete_record(date)

@@ -13,7 +13,6 @@ def collection_lambda_handler(event, context):
             continue
 
         event_type = str(record["eventName"])
-        print(event_type)
         if not event_type.startswith("ObjectCreated:"):
             continue
 

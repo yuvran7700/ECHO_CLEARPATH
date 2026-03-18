@@ -21,3 +21,9 @@ def write_file(s3_key: str, data: dict) -> str:
 
 def delete_file(s3_key: str):
     s3_client.delete_object(Bucket=S3_BUCKET_NAME, Key=s3_key)
+
+
+def get_etag(s3_key: str):
+    return s3_client.head_object(Bucket=S3_BUCKET_NAME, Key=s3_key)[
+        "ETag"
+    ].strip('"')

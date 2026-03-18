@@ -5,7 +5,11 @@ from src.lambda_handlers.collection_lambda_handler import (
     collection_lambda_handler,
 )
 from src.repositories.db_repo import delete_record, get_record
-from src.repositories.s3_repo import delete_file, write_file
+from src.repositories.s3_repo import (
+    delete_file,
+    write_file,
+)
+from src.utils.weather_utils import decimal_converter
 
 from tests.utils.weather_collect_utils import generate_trig_event
 
@@ -30,7 +34,7 @@ def test_new_record_works():
 
     event = generate_trig_event(
         "ObjectCreated:Put",
-        "clearpath-weather-old",
+        "clearpath-weather-index",
         key,
         "ckfajs;kf",
     )
@@ -38,7 +42,10 @@ def test_new_record_works():
     collection_lambda_handler(event, None)
 
     result = get_record(date)
-    assert result is None
+    attri = content["events"][0]["event_attributes"]
+    assert result["date"] == date
+    assert result["rainfall"] == attri["rainfall"]
+    assert decimal_converter(result["tempMin"]) == attri["tempMin"]
 
     delete_file(key)
     delete_record(date)
