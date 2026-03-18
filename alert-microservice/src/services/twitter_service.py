@@ -9,8 +9,8 @@ import os
 import time
 from datetime import datetime, timedelta
 
-from dependencies.db_client import alert_table
-from repositories.twitter_client import BASE_QUERY, search_tweets_by_query
+from repositories.db_repo import put_record
+from dependencies.twitter_client import BASE_QUERY, search_tweets_by_query
 from utils.json_helpers import create_dict_from_json
 
 TWEETS_FILE = "tweets_jan_feb_2025.json"
@@ -62,39 +62,38 @@ def fetch_tweets() -> list:
 
     all_tweets = []
 
-    start = START_DATE.strftime("%Y-%m-%d")
-    end = END_DATE.strftime("%Y-%m-%d")
-    print(f"\nFetching tweets from {start} to {end}")
+    # start = START_DATE.strftime("%Y-%m-%d")
+    # end = END_DATE.strftime("%Y-%m-%d")
+    # print(f"\n DEBUG: Fetching tweets from {start} to {end}")
 
     queries = generate_weekly_queries(START_DATE, END_DATE)
-    print(f"Generated {len(queries)} weekly queries\n")
+    # print(f"DEBUG: Generated {len(queries)} weekly queries\n")
 
-    for i, q in enumerate(queries, 1):
+    for q in enumerate(queries, 1):
         # Extract dates from query for display
-        date_range = q.split("since:")[1].split(" until:")
-        print(f"[{i}/{len(queries)}] Week: {date_range[0]} to {date_range[1]}")
+        # date_range = q.split("since:")[1].split(" until:")
+        # print(f"DEBUG: [{i}/{len(queries)}] Week: {date_range[0]} to {date_range[1]}")
 
         # Fetch tweets for this week
         week_tweets = search_tweets_by_query(q)
         all_tweets.extend(week_tweets)
-        print(f"  Collected {len(week_tweets)} tweets\n")
+        # print(f"DEBUG: Collected {len(week_tweets)} tweets\n")
 
         # Be polite to the API
         time.sleep(1)
 
     unique_tweets = list({t["id"]: t for t in all_tweets}.values())
-    print(f"Total unique tweets: {len(unique_tweets)}")
+    # print(f"DEBUG: Total unique tweets: {len(unique_tweets)}")
 
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(unique_tweets, f, indent=2, ensure_ascii=False)
 
-    print(f"Saved to {TWEETS_FILE}")
+    # print(f"DEBUG: Saved to {TWEETS_FILE}")
 
     return unique_tweets
 
 
 def add_tweets_to_dynamoDB(parsed_tweets: str) -> None:
-
     data = create_dict_from_json(parsed_tweets)
 
     for record in data:
@@ -104,7 +103,7 @@ def add_tweets_to_dynamoDB(parsed_tweets: str) -> None:
             "text": record["master_text"],
             "status": None,
         }
-        alert_table.put_item(Item=item)
+        put_record(Item=item)
 
 
 # TEST MAIN TO CHECK IF SERVICE RETURNS TWEETS CORRECTLY FOR PAGNIATION

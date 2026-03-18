@@ -37,10 +37,10 @@ class TwitterClient:
     def __init__(self, api_url, api_key, max_retries: int = 3):
         self.api_url = BASE_URL
         self.api_key = api_key or os.getenv("TWITTER_API_KEY")
-        self.headers = {"X-API-Key": api_key} 
+        self.headers = {"X-API-Key": self.api_key}
         self.max_retries = max_retries
 
-    def search_tweets_by_query(query: str) -> list:
+    def search_(self, query: str) -> list:
         """
         Fetches the latest tweets matching the transit disruption query.
 
@@ -55,11 +55,9 @@ class TwitterClient:
             (e.g., 401 Unauthorized).
         """
 
-        headers = {"x-api-key": API_KEY}
         all_tweets = []
         seen_ids = set()
         cursor = None
-        max_retries = 3
 
         while True:
             # use max_id to retrive older tweet beyond pagination
@@ -70,12 +68,15 @@ class TwitterClient:
 
             retry_count = 0
 
-            while retry_count < max_retries:
+            while retry_count < self.max_retries:
                 try:
                     # Perform the GET request to the advanced search endpoint
                     response = requests.get(
-                        BASE_URL, headers=headers, params=params
+                        self.api_url, 
+                        headers=self.headers,
+                        params=params
                     )
+
                     response.raise_for_status()
                     data = response.json()
 
@@ -108,7 +109,7 @@ class TwitterClient:
                     print(f"  Error: {e}, retry {retry_count}/{max_retries}")
 
                     time.sleep(2**retry_count)
-                    if retry_count == max_retries:
+                    if retry_count == self.max_retries:
                         print("Max retries reached, returning collected tweets")
                         return all_tweets
 
