@@ -2,8 +2,6 @@
 from datetime import datetime
 from typing import Dict, List
 
-from utils.json_helpers import create_dict_from_json, save_tweets_to_file
-
 TWEETS_FILE = "merged_tweets.json"
 
 
@@ -77,11 +75,13 @@ def collate_tweets(cleaned_tweets: List[Dict]) -> List[Dict]:
 
     return list(collated.values())
 
-def parse_tweets(tweets): 
+
+def parse_tweets(tweets):
     extracted = extract_metadata(tweets)
     collated = collate_tweets(extracted)
     # SAFE-GUARD: SAVES LOCAL TWEETS
     return collated
+
 
 # if __name__ == "__main__":
 #     tweets = create_dict_from_json(TWEETS_FILE)

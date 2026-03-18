@@ -9,8 +9,8 @@ import os
 import time
 from datetime import datetime, timedelta
 
-from src.repositories.db_repo import put_record
 from src.dependencies.twitter_client import TwitterClient
+from src.repositories.db_repo import put_record
 from src.utils.json_helpers import create_dict_from_json
 
 TWEETS_FILE = "TESTREFACTOR.json"
@@ -26,6 +26,7 @@ BASE_QUERY = (
 
 # # SPRINT 1: CALL STATIC FILE
 # CLEANED_TWEET_FILE = "processed_tweets.json"
+
 
 def generate_weekly_queries(start_date: datetime, end_date: datetime):
     """
@@ -48,6 +49,7 @@ def generate_weekly_queries(start_date: datetime, end_date: datetime):
         queries.append(q)
         current = next_week
     return queries
+
 
 def fetch_tweets() -> list:
     """
@@ -79,10 +81,9 @@ def fetch_tweets() -> list:
         # Be polite to the API
         time.sleep(1)
 
-    #For all tweets, removes all the duplicates
+    # For all tweets, removes all the duplicates
     unique_tweets = list({t["id"]: t for t in all_tweets}.values())
     print(f"DEBUG: Total unique tweets: {len(unique_tweets)}")
-
 
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(unique_tweets, f, indent=2, ensure_ascii=False)

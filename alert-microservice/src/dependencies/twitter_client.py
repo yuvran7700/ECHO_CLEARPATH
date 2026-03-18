@@ -6,6 +6,7 @@ Credits:
     Initial implementation adapted from the TwitterAPI.io Advanced Search
     documentation: https://twitterapi.io/blog/scrape-twitter-history-tweet
 """
+
 import os
 import time
 
@@ -20,7 +21,8 @@ API_KEY = os.getenv("TWITTER_API_KEY")
 # wrapper.
 BASE_URL = "https://api.twitterapi.io/twitter/tweet/advanced_search"
 
-class TwitterClient: 
+
+class TwitterClient:
     """client for collected queries from external API"""
 
     def __init__(self, max_retries: int = 3):
@@ -30,14 +32,14 @@ class TwitterClient:
         self.max_retries = max_retries
 
     def fetch_tweets_by_query(self, query: str) -> list:
-        """ 
-        Fetches the tweets based on the query created in service 
+        """
+        Fetches the tweets based on the query created in service
 
         Args:
-            query (str): search query with dynamic start and end dates 
+            query (str): search query with dynamic start and end dates
 
         Returns:
-            list: returns raw response json 
+            list: returns raw response json
         """
         all_tweets = []
         # seen_ids = set()
@@ -56,11 +58,9 @@ class TwitterClient:
                 try:
                     # Perform the GET request to the advanced search endpoint
                     response = requests.get(
-                        self.api_url, 
-                        headers=self.headers,
-                        params=params
+                        self.api_url, headers=self.headers, params=params
                     )
-                    
+
                     response.raise_for_status()
                     data = response.json()
 
@@ -78,15 +78,18 @@ class TwitterClient:
 
                 except requests.exceptions.RequestException as e:
                     retry_count += 1
-                    print(f"  Error: {e}, retry {retry_count}/{self.max_retries}")
+                    print(
+                        f"  Error: {e}, retry {retry_count}/{self.max_retries}"
+                    )
 
                     time.sleep(2**retry_count)
                     if retry_count == self.max_retries:
-                        print("Max retries reached, returning collected tweets")
+                        print(
+                            "Max retries reached, returning collected tweets"
+                        )
                         return all_tweets
 
             if not has_next:
                 break
 
         return all_tweets
-
