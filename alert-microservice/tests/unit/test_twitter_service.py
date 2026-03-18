@@ -4,7 +4,7 @@ import pytest
 from src.services.twitter_service import generate_weekly_queries
 
 
-@pytest
+@pytest.mark.unit
 def test_weekly_queries_generation():
     start = datetime.strptime("2026-02-01", "%Y-%m-%d")
     end = datetime.strptime("2026-02-20", "%Y-%m-%d")
