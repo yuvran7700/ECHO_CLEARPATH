@@ -29,15 +29,35 @@ def sample_collated_tweets_on_same_date():
         {
             "account_name": "T1 Sydney Trains",
             "date": "2025-10-03",
-            "text": (
-                "this is tweet 1 on same day EOT this is tweet 2 on same day"
+            "master_text": (
+                "this is tweet 1 on same dayEOT\n"
+                "this is tweet 2 on same day"
             ),
         },
         {
             "account_name": "T1 Sydney Trains",
             "date": "2025-10-04",
-            "text": ("this is tweet on another day"),
+            "master_text": ("this is tweet on another day"),
         },
+    ]
+
+
+@pytest.fixture
+def sample_parsed_tweet():
+    """Expected output after parse_tweets on sample_tweet_raw_response."""
+    return [
+        {
+            "account_name": "T1 Sydney Trains",
+            "date": "2026-02-02",
+            "master_text": (
+                "Allow extra travel time due to an issue with a freight train "
+                "at Werrington. \n\nStops may change at short notice and "
+                "you may "
+                "have to change trains to continue your trip. \n\n Check "
+                "transport apps or information screens for service updates. "
+                "https://t.co/b5pREumZ9Q"
+            ),
+        }
     ]
 
 

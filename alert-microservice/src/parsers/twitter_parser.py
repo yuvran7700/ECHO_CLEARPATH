@@ -2,8 +2,6 @@
 from datetime import datetime
 from typing import Dict, List
 
-TWEETS_FILE = "merged_tweets.json"
-
 
 def format_date(created_at: str):
     """
