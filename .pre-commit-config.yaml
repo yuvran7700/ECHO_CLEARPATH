@@ -18,6 +18,6 @@ repos:
     hooks:
       - id: line-limit
         name: Limit commit to 200 lines
-        entry: util/pre-commit.sh --ignore-deps
-        language: script
+        entry: bash util/pre-commit.sh --ignore-deps
+        language: system
         always_run: true
