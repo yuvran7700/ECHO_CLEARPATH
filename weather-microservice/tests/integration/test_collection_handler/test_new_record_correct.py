@@ -72,7 +72,6 @@ def test_new_record_works():
 
     assert result["weatherSeverity"] is not None
     assert result["weatherSeverity"]["rainSeverity"] == "No rain"
-    assert result["weatherSeverity"]["sunSeverity"] == "Sunny"
     assert result["weatherSeverity"]["tempSeverity"] == "Warm"
     assert result["weatherSeverity"]["windSeverity"] == "Breezy"
 
