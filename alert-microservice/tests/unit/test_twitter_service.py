@@ -1,3 +1,4 @@
+# tests/test_twitter_service.py
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
@@ -10,6 +11,10 @@ from src.services.twitter_service import (
 
 
 def test_weekly_queries_generation():
+    """
+    tests weekly queries generations creates correct weeks
+    from given start to end date
+    """
     start = datetime.strptime("2026-02-01", "%Y-%m-%d")
     end = datetime.strptime("2026-02-20", "%Y-%m-%d")
 
@@ -25,6 +30,9 @@ def test_weekly_queries_generation():
 @patch("src.services.twitter_service.generate_weekly_queries")
 @patch("src.services.twitter_service.time.sleep")
 def test_fetch_calls_api_for_each_query(mock_sleep, mock_queries, mock_client):
+    """
+    tests fetch_tweets is called for all generated queries
+    """
     # Arrange
     mock_queries.return_value = ["q1", "q2"]
 
@@ -45,6 +53,9 @@ def test_fetch_calls_api_for_each_query(mock_sleep, mock_queries, mock_client):
 def test_fetch_tweets_removes_all_duplicate_tweets(
     mock_sleep, mock_queries, mock_client, sample_tweet_raw_response
 ):
+    """
+    tests fetch_tweets only returns unique tweets
+    """
     mock_queries.return_value = ["q1", "q2"]
 
     mock_instance = MagicMock()
@@ -67,6 +78,9 @@ def test_add_tweets_to_DB_creates_correct_item(
     mock_put,
     sample_parsed_tweet,
 ):
+    """
+    tests add tweet to db uploads with correct item
+    """
     add_tweets_to_dynamoDB(sample_parsed_tweet)
 
     mock_put.assert_called_once_with(
@@ -83,6 +97,9 @@ def test_add_tweets_to_DB_creates_correct_item(
 @patch("src.services.twitter_service.generate_weekly_queries")
 @patch("src.services.twitter_service.time.sleep")
 def test_fetch_uses_timeframe_queries(mock_sleep, mock_queries, mock_client):
+    """
+    tests fetch tweets is called for each query
+    """
     queries = [
         "query since:2026-02-01 until:2026-02-08",
         "query since:2026-02-08 until:2026-02-15",
@@ -110,6 +127,9 @@ def test_process_pipeline_with_realistic_data(
     sample_tweet_raw_response,
     sample_parsed_tweet,
 ):
+    """
+    tests full service pipline from creation to upload to db
+    """
     # Arrange
     mock_fetch.return_value = [sample_tweet_raw_response]
     mock_parse.return_value = sample_parsed_tweet
