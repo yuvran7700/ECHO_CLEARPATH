@@ -1,8 +1,21 @@
 # parsers/twitter_parser.py
+
+"""
+Parser module for cleaning and formatting tweets.
+
+Contains functions to:
+- Convert Twitter date strings to YYYY-MM-DD format.
+- Extract key metadata: account name, date, and text.
+- Collate multiple tweets from the same account on the same day into a
+single text entry.
+- Prepare tweets for storage or further processing.
+
+This module is intended to be used by the Twitter service layer before
+writing to DynamoDB.
+"""
+
 from datetime import datetime
 from typing import Dict, List
-
-TWEETS_FILE = "merged_tweets.json"
 
 
 def format_date(created_at: str):
@@ -25,7 +38,7 @@ def format_date(created_at: str):
     return date_formatted
 
 
-def extract_metadata(tweets: dict):
+def extract_metadata(tweets: list):
     """
     Extract only essential metadata from tweets.
 
@@ -33,7 +46,7 @@ def extract_metadata(tweets: dict):
     Removes all other metadata (likes, retweets, IDs, etc.)
 
     Args:
-        tweets (dict): Dictionary of tweet objects from JSON
+        tweets (list): list of tweet objects
 
     Returns:
         list: List of dictionaries with account_name, date, and text fields
@@ -79,5 +92,4 @@ def collate_tweets(cleaned_tweets: List[Dict]) -> List[Dict]:
 def parse_tweets(tweets):
     extracted = extract_metadata(tweets)
     collated = collate_tweets(extracted)
-    # SAFE-GUARD: SAVES LOCAL TWEETS
     return collated
