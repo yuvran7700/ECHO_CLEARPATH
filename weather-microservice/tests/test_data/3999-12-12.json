@@ -1,18 +1,18 @@
 {
   "data_source": "BOM",
-  "dataset_type": "weather_sensor_data",
-  "dataset_id": "s3://your-bucket-name/weather_collected/weather_event_test.json",
+  "dataset_type": "Daily weather observations",
+  "dataset_id": "s3://clearpath-weather-index/weather_collected/weather_event_test.json",
   "events": [
     {
-      "event_type": "sensor_reading",
+      "event_type": "Daily weather observations",
       "event_time": {
-        "time_stamp": "6999-12-12T09:00:00",
+        "time_stamp": "3999-12-12T09:00:00",
         "duration": 0,
         "duration_unit": "seconds",
         "time_zone": "Australia/Sydney"
       },
       "event_attributes": {
-        "date": "6999-12-12",
+        "date": "3999-12-12",
         "tempMin": 18.2,
         "tempMax": 27.4,
         "rainfall": 0.0,
