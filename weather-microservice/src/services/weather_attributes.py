@@ -1,8 +1,7 @@
-from decimal import Decimal
-
 from src.repositories.db_repo import put_record
 from src.repositories.s3_repo import read_file
 from src.utils.weather_utils import (
+    dynamodb_converter,
     humidity_classification,
     rainfall_classification,
     sunshine_classification,
@@ -37,18 +36,18 @@ def process_collected_s3_object(key: str, eTag: str):
     Item = {
         "date": date,
         "eTag": eTag,
-        "tempMin": Decimal(str(tempMin)),
-        "tempMax": Decimal(str(tempMax)),
-        "rainfall": Decimal(str(rainfall)),
-        "sunshineHours": Decimal(str(sunshineHours)),
-        "windGustSpeed": Decimal(str(windGustSpeed)),
+        "tempMin": dynamodb_converter(tempMin),
+        "tempMax": dynamodb_converter(tempMax),
+        "rainfall": dynamodb_converter(rainfall),
+        "sunshineHours": dynamodb_converter(sunshineHours),
+        "windGustSpeed": dynamodb_converter(windGustSpeed),
         "9am": {
-            "temp": Decimal(str(amTemp)),
-            "humidity": Decimal(str(amHumidity)),
+            "temp": dynamodb_converter(amTemp),
+            "humidity": dynamodb_converter(amHumidity),
         },
         "3pm": {
-            "temp": Decimal(str(pmTemp)),
-            "humidity": Decimal(str(pmHumidity)),
+            "temp": dynamodb_converter(pmTemp),
+            "humidity": dynamodb_converter(pmHumidity),
         },
         "weatherSeverity": {
             "tempSeverity": str(temp_severity),
@@ -58,5 +57,7 @@ def process_collected_s3_object(key: str, eTag: str):
             "humiditySeverity": str(humidity_severity),
         },
     }
+
+    print(Item)
 
     put_record(Item)

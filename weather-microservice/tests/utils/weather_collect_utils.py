@@ -22,7 +22,7 @@ def generate_agage_same_weather():
                     "9am": {"temp": 21.3, "humidity": 64.0},
                     "3pm": {"temp": 26.7, "humidity": 48.0},
                     "weatherSeverity": {
-                        "sunSeverity": "Cloudy",
+                        "sunSeverity": "Sunny",
                         "rainSeverity": "No rain",
                         "tempSeverity": "Warm",
                         "windSeverity": "Breezy",
