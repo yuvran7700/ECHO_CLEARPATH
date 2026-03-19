@@ -30,8 +30,7 @@ def sample_collated_tweets_on_same_date():
             "account_name": "T1 Sydney Trains",
             "date": "2025-10-03",
             "master_text": (
-                "this is tweet 1 on same dayEOT\n"
-                "this is tweet 2 on same day"
+                "this is tweet 1 on same dayEOT\nthis is tweet 2 on same day"
             ),
         },
         {
