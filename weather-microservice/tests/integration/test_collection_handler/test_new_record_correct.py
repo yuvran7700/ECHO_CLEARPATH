@@ -1,5 +1,4 @@
 import json
-import time
 from pathlib import Path
 
 from src.lambda_handlers.collection_lambda_handler import (
@@ -63,16 +62,10 @@ def test_new_record_works():
         == attri["3pm"]["humidity"]
     )
 
-    time.sleep(1)
-
-    actual = result["weatherSeverity"]["sunSeverity"]
-    print("ASSERTING ON:", repr(actual))
-
-    print(result)
-
     assert result["weatherSeverity"] is not None
     assert result["weatherSeverity"]["rainSeverity"] == "No rain"
     assert result["weatherSeverity"]["tempSeverity"] == "Warm"
+    assert result["weatherSeverity"]["sunSeverity"] == "Sunny"
     assert result["weatherSeverity"]["windSeverity"] == "Breezy"
 
     delete_file(key)

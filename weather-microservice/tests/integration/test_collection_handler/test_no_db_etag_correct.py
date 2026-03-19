@@ -1,5 +1,4 @@
 import json
-import time
 from pathlib import Path
 
 from src.lambda_handlers.collection_lambda_handler import (
@@ -64,8 +63,6 @@ def test_new_record_works():
         decimal_converter(result["3pm"]["humidity"])
         == attri["3pm"]["humidity"]
     )
-
-    time.sleep(1)
 
     assert result["weatherSeverity"] is not None
     assert result["weatherSeverity"]["rainSeverity"] == "No rain"

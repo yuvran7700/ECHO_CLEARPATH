@@ -58,6 +58,4 @@ def process_collected_s3_object(key: str, eTag: str):
         },
     }
 
-    print(Item)
-
     put_record(Item)
