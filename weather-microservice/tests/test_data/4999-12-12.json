@@ -13,14 +13,14 @@
       },
       "event_attributes": {
         "date": "3999-12-12",
-        "tempMin": 18.2,
-        "tempMax": 27.4,
-        "rainfall": 0.0,
-        "evaporation": 5.6,
-        "sunshineHours": 8.4,
+        "tempMin_C": 18.2,
+        "tempMax_C": 27.4,
+        "rainfall_mm": 0.0,
+        "evaporation_mm": 5.6,
+        "sunshineHours_hours": 8.4,
 
         "windGustDir": "NW",
-        "windGustSpeed": 35,
+        "maxWindSpeed_kmh": 35,
         "windGustTime": "14:30",
 
         "9am": {

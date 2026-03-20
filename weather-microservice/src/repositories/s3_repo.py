@@ -9,12 +9,27 @@ def read_file(s3_key: str) -> dict:
     return json.loads(content)
 
 
+def read_untouched_file(s3_key: str) -> dict:
+    response = s3_client.get_object(Bucket=S3_BUCKET_NAME, Key=s3_key)
+    return response
+
+
 def write_file(s3_key: str, data: dict) -> str:
     s3_client.put_object(
         Bucket=S3_BUCKET_NAME,
         Key=s3_key,
         Body=json.dumps(data, indent=2),
         ContentType="application/json",
+    )
+    return f"s3://{S3_BUCKET_NAME}/{s3_key}"
+
+
+def write_file_csv(s3_key: str, data: dict) -> str:
+    s3_client.put_object(
+        Bucket=S3_BUCKET_NAME,
+        Key=s3_key,
+        Body=data.encode("utf-8"),
+        ContentType="application/csv",
     )
     return f"s3://{S3_BUCKET_NAME}/{s3_key}"
 

@@ -1,0 +1,43 @@
+from pathlib import Path
+
+from src.lambda_handlers.raw_lambda_handler import (
+    raw_lambda_handler,
+)
+from src.repositories.db_repo import delete_record
+from src.repositories.s3_repo import (
+    delete_file,
+    write_file_csv,
+)
+
+from tests.utils.weather_collect_utils import generate_trig_event
+
+
+def test_new_record_works():
+    key = "weather_raw/12-3999.csv"
+    date = "12-3999"
+
+    delete_file(key)
+    delete_record(date)
+
+    file_path = (
+        Path(__file__).resolve().parent.parent.parent
+        / "test_data"
+        / "12-3999.csv"
+    )
+
+    with open(file_path, "r", encoding="utf-8-sig") as f:
+        csv_content = f.read()
+
+    write_file_csv(key, csv_content)
+
+    event = generate_trig_event(
+        "ObjectCreated:Put",
+        "clearpath-weather-index",
+        key,
+        "ckfajs;kf",
+    )
+
+    raw_lambda_handler(event, None)
+
+    delete_file(key)
+    delete_record(date)

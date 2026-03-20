@@ -14,18 +14,18 @@ def format_db_adage(record: dict, date):
                 },
                 "event_attributes": {
                     "date": date,
-                    "tempMin": record["tempMin"],
-                    "tempMax": record["tempMax"],
-                    "rainfall": record["rainfall"],
-                    "sunshineHours": record["sunshineHours"],
-                    "windGustSpeed": record["windGustSpeed"],
+                    "tempMin_C": record["tempMin_C"],
+                    "tempMax_C": record["tempMax_C"],
+                    "rainfall_mm": record["rainfall_mm"],
+                    "sunshineHours_hours": record["sunshineHours_hours"],
+                    "maxWindSpeed_kmh": record["maxWindSpeed_kmh"],
                     "9am": {
-                        "temp": record["9am"]["temp"],
-                        "humidity": record["9am"]["humidity"],
+                        "temp_C": record["9am"]["temp"],
+                        "humidity_percent": record["9am"]["humidity"],
                     },
                     "3pm": {
-                        "temp": record["3pm"]["temp"],
-                        "humidity": record["3pm"]["humidity"],
+                        "temp_C": record["3pm"]["temp"],
+                        "humidity_percent": record["3pm"]["humidity"],
                     },
                     "weatherSeverity": {
                         "sunSeverity": record["weatherSeverity"][

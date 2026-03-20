@@ -44,11 +44,17 @@ def test_new_record_works():
     result = get_record(date)
     attri = content["events"][0]["event_attributes"]
     assert result["date"] == date
-    assert result["rainfall"] == attri["rainfall"]
-    assert decimal_converter(result["tempMin"]) == attri["tempMin"]
-    assert decimal_converter(result["tempMax"]) == attri["tempMax"]
-    assert decimal_converter(result["sunshineHours"]) == attri["sunshineHours"]
-    assert decimal_converter(result["windGustSpeed"]) == attri["windGustSpeed"]
+    assert result["rainfall_mm"] == attri["rainfall_mm"]
+    assert decimal_converter(result["tempMin_C"]) == attri["tempMin_C"]
+    assert decimal_converter(result["tempMax_C"]) == attri["tempMax_C"]
+    assert (
+        decimal_converter(result["sunshineHours_hours"])
+        == attri["sunshineHours_hours"]
+    )
+    assert (
+        decimal_converter(result["maxWindSpeed_kmh"])
+        == attri["maxWindSpeed_kmh"]
+    )
     assert result["9am"] is not None
     assert decimal_converter(result["9am"]["temp"]) == attri["9am"]["temp"]
     assert (

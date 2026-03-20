@@ -55,3 +55,5 @@ def test_new_record_works():
     assert result["headers"] is not None
     assert result["body"] is not None
     assert json.loads(result["body"]) == generate_agage_same_weather()
+
+    print(result)

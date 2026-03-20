@@ -14,11 +14,11 @@ def generate_agage_same_weather():
                 },
                 "event_attributes": {
                     "date": "3999-12-12",
-                    "tempMin": 18.2,
-                    "tempMax": 27.4,
-                    "rainfall": 0.0,
-                    "sunshineHours": 8.4,
-                    "windGustSpeed": 35.0,
+                    "tempMin_C": 18.2,
+                    "tempMax_C": 27.4,
+                    "rainfall_mm": 0.0,
+                    "sunshineHours_hours": 8.4,
+                    "maxWindSpeed_kmh": 35.0,
                     "9am": {"temp": 21.3, "humidity": 64.0},
                     "3pm": {"temp": 26.7, "humidity": 48.0},
                     "weatherSeverity": {
