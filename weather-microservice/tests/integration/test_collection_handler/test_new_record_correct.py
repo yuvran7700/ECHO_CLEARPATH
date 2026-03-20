@@ -42,6 +42,7 @@ def test_new_record_works():
     collection_lambda_handler(event, None)
 
     result = get_record(date)
+
     attri = content["events"][0]["event_attributes"]
     assert result["date"] == date
     assert result["rainfall_mm"] == attri["rainfall_mm"]

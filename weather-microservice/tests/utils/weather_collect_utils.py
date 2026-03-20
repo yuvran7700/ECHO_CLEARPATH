@@ -19,8 +19,8 @@ def generate_agage_same_weather():
                     "rainfall_mm": 0.0,
                     "sunshineHours_hours": 8.4,
                     "maxWindSpeed_kmh": 35.0,
-                    "9am": {"temp": 21.3, "humidity": 64.0},
-                    "3pm": {"temp": 26.7, "humidity": 48.0},
+                    "9am": {"temp_C": 21.3, "humidity_percent": 64.0},
+                    "3pm": {"temp_C": 26.7, "humidity_percent": 48.0},
                     "weatherSeverity": {
                         "sunSeverity": "Sunny",
                         "rainSeverity": "No rain",

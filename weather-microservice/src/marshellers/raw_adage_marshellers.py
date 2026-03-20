@@ -21,7 +21,7 @@ def format_raw_adage(record: dict, date):
                     "sunshineHours_hours": record["sunshineHours_hours"],
                     "windWindDir": record["maxWindDir"],
                     "maxWindSpeed_kmh": record["maxWindSpeed_kmh"],
-                    "windWindTime": record["maxWindTime"],
+                    "maxWindTime": record["maxWindTime"],
                     "9am": {
                         "temp": record["amTemp_C"],
                         "humidity": record["amHumidity_percent"],

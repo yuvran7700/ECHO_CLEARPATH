@@ -4,7 +4,7 @@ from io import StringIO
 
 from src.dependencies.s3_client import S3_BUCKET_NAME
 from src.marshellers.raw_adage_marshellers import format_raw_adage
-from src.repositories.s3_repo import read_untouched_file
+from src.repositories.s3_repo import read_untouched_file, write_file
 from src.services.raw_extraction import extract_attributes
 
 logger = logging.getLogger()
@@ -46,7 +46,13 @@ def raw_lambda_handler(event, context):
                 collect_adage = format_raw_adage(
                     attributes, attributes["date"]
                 )
-                print(collect_adage)
+
+                constructed_key = (
+                    f"weather_collected/{attributes['date']}.json"
+                )
+
+                write_file(constructed_key, collect_adage)
+
             except Exception as e:
                 logger.error(f"Skipping row {row} due to error: {e}")
                 continue

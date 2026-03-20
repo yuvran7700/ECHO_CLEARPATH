@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 
 FIELD_MAP = {
@@ -164,6 +165,13 @@ def safe_value(value, field_name):
     value = str(value).strip()
     if value == "":
         return "Unavailable"
+
+    if field_name == "maxWindTime":
+        try:
+            datetime.strptime(value, "%H:%M")
+            return value
+        except ValueError:
+            raise ValueError(f"Invalid time value for {field_name}: {value}")
 
     if field_name not in str_expected:
         try:

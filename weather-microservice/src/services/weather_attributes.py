@@ -38,6 +38,7 @@ def process_collected_s3_object(key: str, eTag: str):
     Item = {
         "date": date,
         "eTag": eTag,
+        "s3URL": f"s3://clearpath-weather-index/weather_collected/{date}.json",
         "tempMin_C": dynamodb_converter(tempMin_C),
         "tempMax_C": dynamodb_converter(tempMax_C),
         "rainfall_mm": dynamodb_converter(rainfall_mm),
