@@ -4,15 +4,12 @@ from src.lambda_handlers.raw_lambda_handler import (
     raw_lambda_handler,
 )
 from src.repositories.db_repo import delete_record
-from src.repositories.s3_repo import (
-    delete_file,
-    write_file_csv,
-)
+from src.repositories.s3_repo import delete_file, read_file, write_file_csv
 
 from tests.utils.weather_collect_utils import generate_trig_event
 
 
-def test_new_record_works():
+def test_raw_works():
     key = "weather_raw/12-3999.csv"
     date = "12-3999"
 
@@ -39,5 +36,7 @@ def test_new_record_works():
 
     raw_lambda_handler(event, None)
 
-    delete_file(key)
-    delete_record(date)
+    retrieve_key = "weather_collected/3999-12-12.json"
+
+    result = read_file(retrieve_key)
+    print(result)
