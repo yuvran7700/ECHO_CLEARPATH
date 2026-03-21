@@ -1,5 +1,9 @@
+import logging
 from datetime import datetime
 from decimal import Decimal
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 FIELD_MAP = {
     "Minimum temperature (°C)": "tempMin_C",
@@ -160,10 +164,12 @@ def safe_value(value, field_name):
     ]
 
     if value is None:
+        logger.info(f"Value {value} is missing from csv data")
         return "Unavailable"
 
     value = str(value).strip()
     if value == "":
+        logger.info(f"Value {value} is missing from csv data")
         return "Unavailable"
 
     if field_name == "maxWindTime":
@@ -171,16 +177,18 @@ def safe_value(value, field_name):
             datetime.strptime(value, "%H:%M")
             return value
         except ValueError:
-            raise ValueError(f"Invalid time value for {field_name}: {value}")
+            logger.warning(f"Invalid time value for {field_name}: {value}")
+            return "Unavailable"
 
     if field_name not in str_expected:
         try:
             return float(value)
         except ValueError:
-            raise ValueError(
-                f"Invalid numeric value for {field_name}: {value}"
-            )
+            logger.warning(f"Invalid numeric value for {field_name}: {value}")
+            return "Unavailable"
+
     else:
         if value not in wind_directions:
+            logger.warning(f"Wind direction invalid : {value}")
             return "Unavailable"
         return value

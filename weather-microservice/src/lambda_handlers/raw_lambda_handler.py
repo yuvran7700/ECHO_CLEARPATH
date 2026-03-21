@@ -15,22 +15,24 @@ def raw_lambda_handler(event, context):
     for record in event.get("Records", []):
         bucket = str(record["s3"]["bucket"]["name"])
         if bucket != S3_BUCKET_NAME:
-            print("Error: Incorrect bucket name")
+            logger.error("Error: Incorrect bucket name")
             continue
 
         event_type = str(record["eventName"])
         if not event_type.startswith("ObjectCreated:"):
-            print("Error: Incorrect trigger")
+            logger.error("Error: Incorrect trigger")
             continue
 
         try:
             key = str(record["s3"]["object"]["key"])
         except KeyError:
-            print("Error: Key cannot be found in record, skipping object")
+            logger.error(
+                "Error: Key cannot be found in record, skipping object"
+            )
             continue
 
         if not key.startswith("weather_raw/"):
-            print("Error: Wrong bucket folder")
+            logger.error("Error: Wrong bucket folder")
             continue
 
         try:

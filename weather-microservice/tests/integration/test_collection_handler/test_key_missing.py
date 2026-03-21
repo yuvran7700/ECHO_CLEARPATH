@@ -10,8 +10,8 @@ from tests.utils.weather_collect_utils import generate_trig_event
 
 
 def test_key_missing():
-    key = "weather_collected/3999-12-12.json"
-    date = "3999-12-12"
+    key = "weather_collected/9999-12-12.json"
+    date = "9999-12-12"
 
     delete_file(key)
     delete_record(date)

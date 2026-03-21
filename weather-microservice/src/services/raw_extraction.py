@@ -4,9 +4,12 @@ from src.utils.weather_utils import FIELD_MAP, get_date, safe_value
 def extract_attributes(row):
     result = {}
 
-    date = get_date(row)
-    if date is None:
-        raise ValueError(f"Invalid date format: {row['Date']}")
+    try:
+        date = get_date(row)
+    except Exception as e:
+        raise Exception(f"Invalid date input: {e}")
+    # if date is None:
+    #     raise ValueError(f"Invalid date format: {row['Date']}")
 
     for key, value in row.items():
         key = key.strip()

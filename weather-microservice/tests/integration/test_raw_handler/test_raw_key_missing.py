@@ -6,8 +6,8 @@ from src.repositories.s3_repo import delete_file, read_file
 from tests.utils.weather_collect_utils import generate_trig_event
 
 
-def test_raw_works():
-    key = "weather_raw/12-3999.csv"
+def test_raw_key_missing():
+    key = "weather_raw/12-9999.csv"
 
     delete_file(key)
 

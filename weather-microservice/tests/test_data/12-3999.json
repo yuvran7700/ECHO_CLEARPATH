@@ -1,0 +1,23 @@
+﻿{
+    "Date": "12/12/3999",
+    "Minimum temperature (°C)": 15,
+    "Maximum temperature (°C)": 24.6,
+    "Rainfall (mm)": 0,
+    "Evaporation (mm)": 12.6,
+    "Sunshine (hours)": 7.3,
+    "Direction of maximum wind gust": "NW",
+    "Speed of maximum wind gust (km/h)": 65,
+    "Time of maximum wind gust,9am Temperature (°C)": "14:01",
+    "9am Temperature (°C)": 20.7,
+    "9am relative humidity (%)": 35,
+    "9am cloud amount (oktas)": 7,
+    "9am wind direction": "NW",
+    "9am wind speed (km/h)": 15,
+    "9am MSL pressure (hPa)": 1006.6,
+    "3pm Temperature (°C)": 22.8,
+    "3pm relative humidity (%)": 28,
+    "3pm cloud amount (oktas)": 8,
+    "3pm wind direction": "WNW",
+    "3pm wind speed (km/h)": 30,
+    "3pm MSL pressure (hPa)": 1002.8
+}

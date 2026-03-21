@@ -40,3 +40,4 @@ def test_raw_works():
 
     result = read_file(retrieve_key)
     print(result)
+    print(csv_content)
