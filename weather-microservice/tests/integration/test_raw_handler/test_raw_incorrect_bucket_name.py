@@ -6,7 +6,7 @@ from src.repositories.s3_repo import delete_file, read_file
 from tests.utils.weather_collect_utils import generate_trig_event
 
 
-def test_raw_works():
+def test_raw_incorrect_bucket_name():
     key = "weather_raw/12-3999.csv"
 
     delete_file(key)
@@ -20,5 +20,7 @@ def test_raw_works():
 
     raw_lambda_handler(event, None)
 
-    result = read_file(key)
+    retrieve_key = "weather_collected/3999-12-12.json"
+
+    result = read_file(retrieve_key)
     assert result is None

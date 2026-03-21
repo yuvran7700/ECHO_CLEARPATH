@@ -16,7 +16,7 @@ def test_incorrect_event_type():
 
     event = generate_trig_event(
         "s3:ObjectRemoved:Delete",
-        "clearpath-weather-index",
+        "clearpath-weather-index-v1",
         key,
         "ckfajs;kf",
     )

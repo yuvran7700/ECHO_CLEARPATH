@@ -9,7 +9,7 @@ from src.repositories.s3_repo import delete_file, read_file, write_file_csv
 from tests.utils.weather_collect_utils import generate_trig_event
 
 
-def test_raw_works():
+def test_raw_date_missing():
     key = "weather_raw/12-3999.csv"
     date = "12-3999"
 
@@ -19,7 +19,7 @@ def test_raw_works():
     file_path = (
         Path(__file__).resolve().parent.parent.parent
         / "test_data"
-        / "12-3999.csv"
+        / "12-3999-no-date.csv"
     )
 
     with open(file_path, "r", encoding="utf-8-sig") as f:
@@ -39,5 +39,4 @@ def test_raw_works():
     retrieve_key = "weather_collected/3999-12-12.json"
 
     result = read_file(retrieve_key)
-    print(result)
-    print(csv_content)
+    assert result is None

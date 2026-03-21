@@ -18,7 +18,7 @@ def test_key_incorrect():
 
     event = generate_trig_event(
         "ObjectCreated:Put",
-        "clearpath-weather-index",
+        "clearpath-weather-index-v1",
         "3999-12-12.json",
         "ckfajs;kf",
     )

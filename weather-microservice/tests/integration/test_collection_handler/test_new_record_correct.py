@@ -34,7 +34,7 @@ def test_new_record_correct():
 
     event = generate_trig_event(
         "ObjectCreated:Put",
-        "clearpath-weather-index",
+        "clearpath-weather-index-v1",
         key,
         "ckfajs;kf",
     )

@@ -18,7 +18,7 @@ def test_key_date_incorrect():
 
     event = generate_trig_event(
         "ObjectCreated:Put",
-        "clearpath-weather-index",
+        "clearpath-weather-index-v1",
         "weather_collected/no-date.json",
         "ckfajs;kf",
     )

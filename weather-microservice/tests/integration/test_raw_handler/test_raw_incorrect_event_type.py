@@ -13,12 +13,14 @@ def test_incorrect_event_type():
 
     event = generate_trig_event(
         "s3:ObjectRemoved:Delete",
-        "clearpath-weather-index",
+        "clearpath-weather-index-v1",
         key,
         "ckfajs;kf",
     )
 
     raw_lambda_handler(event, None)
 
-    result = read_file(key)
+    retrieve_key = "weather_collected/3999-12-12.json"
+
+    result = read_file(retrieve_key)
     assert result is None

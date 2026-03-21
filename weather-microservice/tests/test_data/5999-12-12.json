@@ -1,7 +1,7 @@
 {
   "data_source": "BOM",
   "dataset_type": "Daily weather observations",
-  "dataset_id": "s3://clearpath-weather-index/weather_collected/5999-12-12.json",
+  "dataset_id": "s3://clearpath-weather-index-v1/weather_collected/5999-12-12.json",
   "events": [
     {
       "event_type": "Daily weather observations",

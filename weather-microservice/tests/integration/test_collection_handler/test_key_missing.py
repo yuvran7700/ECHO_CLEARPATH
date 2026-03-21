@@ -18,7 +18,7 @@ def test_key_missing():
 
     event = generate_trig_event(
         "ObjectCreated:Put",
-        "clearpath-weather-index",
+        "clearpath-weather-index-v1",
         None,
         "ckfajs;kf",
     )

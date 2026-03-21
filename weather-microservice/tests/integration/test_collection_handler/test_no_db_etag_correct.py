@@ -36,7 +36,7 @@ def test_no_db_etag_correct():
 
     event = generate_trig_event(
         "ObjectCreated:Put",
-        "clearpath-weather-index",
+        "clearpath-weather-index-v1",
         key,
         "ckfajs;kf",
     )

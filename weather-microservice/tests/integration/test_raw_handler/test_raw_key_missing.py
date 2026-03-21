@@ -20,5 +20,7 @@ def test_raw_key_missing():
 
     raw_lambda_handler(event, None)
 
-    result = read_file(key)
+    retrieve_key = "weather_collected/3999-12-12.json"
+
+    result = read_file(retrieve_key)
     assert result is None

@@ -2,7 +2,7 @@ def format_raw_adage(record: dict, date):
     return {
         "data_source": "BOM",
         "dataset_type": "Daily weather observations",
-        "dataset_id": f"s3://clearpath-weather-index/weather_collected/{date}.json",
+        "dataset_id": f"s3://clearpath-weather-index-v1/weather_collected/{date}.json",
         "events": [
             {
                 "event_type": "Daily weather observations",
