@@ -20,10 +20,10 @@ def process_collected_s3_object(key: str, eTag: str):
     rainfall_mm = attri["rainfall_mm"]
     sunshineHours_hours = attri["sunshineHours_hours"]
     maxWindSpeed_kmh = attri["maxWindSpeed_kmh"]
-    amTemp_C = attri["9am"]["temp"]
-    amHumidity_percent = attri["9am"]["humidity"]
-    pmTemp_C = attri["3pm"]["temp"]
-    pmHumidity_percent = attri["3pm"]["humidity"]
+    amTemp_C = attri["9am"]["temp_C"]
+    amHumidity_percent = attri["9am"]["humidity_percent"]
+    pmTemp_C = attri["3pm"]["temp_C"]
+    pmHumidity_percent = attri["3pm"]["humidity_percent"]
 
     temp_severity = temperature_classification(
         tempMin_C, tempMax_C, amTemp_C, pmTemp_C
@@ -45,12 +45,12 @@ def process_collected_s3_object(key: str, eTag: str):
         "sunshineHours_hours": dynamodb_converter(sunshineHours_hours),
         "maxWindSpeed_kmh": dynamodb_converter(maxWindSpeed_kmh),
         "9am": {
-            "temp": dynamodb_converter(amTemp_C),
-            "humidity": dynamodb_converter(amHumidity_percent),
+            "temp_C": dynamodb_converter(amTemp_C),
+            "humidity_percent": dynamodb_converter(amHumidity_percent),
         },
         "3pm": {
-            "temp": dynamodb_converter(pmTemp_C),
-            "humidity": dynamodb_converter(pmHumidity_percent),
+            "temp_C": dynamodb_converter(pmTemp_C),
+            "humidity_percent": dynamodb_converter(pmHumidity_percent),
         },
         "weatherSeverity": {
             "tempSeverity": str(temp_severity),

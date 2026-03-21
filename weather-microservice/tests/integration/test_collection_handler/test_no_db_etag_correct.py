@@ -14,7 +14,7 @@ from src.utils.weather_utils import decimal_converter
 from tests.utils.weather_collect_utils import generate_trig_event
 
 
-def test_new_record_works():
+def test_no_db_etag_correct():
     key = "weather_collected/3999-12-12.json"
     date = "3999-12-12"
 
@@ -58,22 +58,22 @@ def test_new_record_works():
         == attri["maxWindSpeed_kmh"]
     )
     assert result["9am"] is not None
-    assert decimal_converter(result["9am"]["temp"]) == attri["9am"]["temp"]
+    assert decimal_converter(result["9am"]["temp_C"]) == attri["9am"]["temp_C"]
     assert (
-        decimal_converter(result["9am"]["humidity"])
-        == attri["9am"]["humidity"]
+        decimal_converter(result["9am"]["humidity_percent"])
+        == attri["9am"]["humidity_percent"]
     )
     assert result["3pm"] is not None
-    assert decimal_converter(result["3pm"]["temp"]) == attri["3pm"]["temp"]
+    assert decimal_converter(result["3pm"]["temp_C"]) == attri["3pm"]["temp_C"]
     assert (
-        decimal_converter(result["3pm"]["humidity"])
-        == attri["3pm"]["humidity"]
+        decimal_converter(result["3pm"]["humidity_percent"])
+        == attri["3pm"]["humidity_percent"]
     )
 
     assert result["weatherSeverity"] is not None
     assert result["weatherSeverity"]["rainSeverity"] == "No rain"
-    assert result["weatherSeverity"]["tempSeverity"] == "Warm"
-    assert result["weatherSeverity"]["windSeverity"] == "Breezy"
+    assert result["weatherSeverity"]["tempSeverity"] == "Mild"
+    assert result["weatherSeverity"]["windSeverity"] == "Gale"
 
     delete_file(key)
     delete_record(date)

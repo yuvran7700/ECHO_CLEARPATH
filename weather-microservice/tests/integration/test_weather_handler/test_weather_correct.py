@@ -54,4 +54,5 @@ def test_weather_correct():
     assert result["statusCode"] == 200
     assert result["headers"] is not None
     assert result["body"] is not None
+
     assert json.loads(result["body"]) == generate_agage_same_weather()

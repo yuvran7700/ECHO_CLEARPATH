@@ -19,7 +19,7 @@ from tests.utils.weather_collect_utils import (
 )
 
 
-def test_new_record_works():
+def test_missing_atri_correct():
     key = "weather_collected/5999-12-12.json"
     date = "5999-12-12"
 
