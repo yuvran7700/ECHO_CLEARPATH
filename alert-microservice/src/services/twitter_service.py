@@ -5,6 +5,7 @@ and uploading formatted tweets to DynamoDB.
 This module coordinates the workflow: fetching -> parsing -> storing.
 """
 
+import json
 import time
 from datetime import datetime, timedelta
 
@@ -23,6 +24,39 @@ BASE_QUERY = (
     "(delay OR disruption OR cancelled OR suspended "
     "OR delayed OR allow extra time)"
 )
+
+
+def reprocess_raw_tweets(file_path: str):
+    """
+    Reprocess raw tweets from a JSON backup file and upload to DynamoDB.
+
+    Steps:
+        1. Load raw tweets from JSON
+        2. Parse and collate tweets
+        3. Insert each tweet as a record in DynamoDB
+
+    Args:
+        file_path (str): Path to the JSON backup file
+    """
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            raw_tweets = json.load(f)
+    except FileNotFoundError:
+        print(f"ERROR: File not found: {file_path}")
+        return
+    except json.JSONDecodeError:
+        print(f"ERROR: Invalid JSON format: {file_path}")
+        return
+
+    # Parse tweets into structured format
+    parsed_tweets = parse_tweets(raw_tweets)
+
+    # Upload parsed tweets to DynamoDB
+    add_tweets_to_dynamoDB(parsed_tweets)
+
+    print(
+        f"INFO: Successfully reprocessed {len(parsed_tweets)} tweets backup."
+    )
 
 
 def procress_tweets_and_upload_to_dynamo_db():
@@ -112,7 +146,7 @@ def add_tweets_to_dynamoDB(parsed_tweets: list) -> None:
 
     for record in data:
         item = {
-            "Date": record["date"],
+            "date": record["date"],
             "account_name": record["account_name"],
             "text": record["master_text"],
             "status": None,
@@ -123,4 +157,6 @@ def add_tweets_to_dynamoDB(parsed_tweets: list) -> None:
 # TEST MAIN
 # If the file is run directly, execute the full pipeline
 if __name__ == "__main__":
-    procress_tweets_and_upload_to_dynamo_db()
+    # procress_tweets_and_upload_to_dynamo_db()
+    backup_file = "src/data/merged_tweets.json"
+    reprocess_raw_tweets(backup_file)
