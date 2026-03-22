@@ -1,15 +1,21 @@
+import json
 from pathlib import Path
 
-from src.lambda_handlers.raw_lambda_handler import (
-    raw_lambda_handler,
-)
+from src.lambda_handlers.ADAGE_lambda_handler import ADAGE_lambda_handler
+from src.lambda_handlers.raw_lambda_handler import raw_lambda_handler
 from src.repositories.db_repo import delete_record
-from src.repositories.s3_repo import delete_file, read_file, write_file_csv
+from src.repositories.s3_repo import (
+    delete_file,
+    write_file_csv,
+)
 
-from tests.utils.weather_collect_utils import generate_trig_event
+from tests.utils.weather_collect_utils import (
+    generate_trig_event,
+    generate_weather_query,
+)
 
 
-def test_raw_works():
+def test_ADAGE_correct():
     key = "weather_raw/12-3999.csv"
     date = "12-3999"
 
@@ -37,13 +43,18 @@ def test_raw_works():
 
     raw_lambda_handler(event, None)
 
-    retrieve_key = "weather_collected/3999-12-12.json"
+    date = "3999-12-12"
+    event = generate_weather_query(date)
 
-    result = read_file(retrieve_key)
+    result = ADAGE_lambda_handler(event, None)
 
-    assert result is not None
+    assert result["statusCode"] == 200
+    assert result["headers"] is not None
+    assert result["body"] is not None
 
-    attri = result["events"][0]["event_attributes"]
+    body = json.loads(result["body"])
+    attri = body["events"][0]["event_attributes"]
+
     assert attri["date"] == "3999-12-12"
     assert attri["rainfall_mm"] == 0
     assert attri["tempMin_C"] == 15.0

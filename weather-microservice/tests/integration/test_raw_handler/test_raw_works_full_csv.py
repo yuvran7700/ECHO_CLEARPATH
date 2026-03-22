@@ -9,18 +9,18 @@ from src.repositories.s3_repo import delete_file, read_file, write_file_csv
 from tests.utils.weather_collect_utils import generate_trig_event
 
 
-def test_raw_works():
-    key = "weather_raw/12-3999.csv"
-    date = "12-3999"
+def test_raw_works_full_csv():
+    key = "weather_raw/12-4999.csv"
+    date = "12-4999"
 
     delete_file(key)
     delete_record(date)
-    delete_file("weather_collected/3999-12-12.json")
+    delete_file("weather_collected/4999-12-01.json")
 
     file_path = (
         Path(__file__).resolve().parent.parent.parent
         / "test_data"
-        / "12-3999.csv"
+        / "12-4999.csv"
     )
 
     with open(file_path, "r", encoding="utf-8-sig") as f:
@@ -35,16 +35,16 @@ def test_raw_works():
         "ckfajs;kf",
     )
 
-    raw_lambda_handler(event, None)
+    result = raw_lambda_handler(event, None)
 
-    retrieve_key = "weather_collected/3999-12-12.json"
+    retrieve_key = "weather_collected/4999-12-01.json"
 
     result = read_file(retrieve_key)
 
     assert result is not None
 
     attri = result["events"][0]["event_attributes"]
-    assert attri["date"] == "3999-12-12"
+    assert attri["date"] == "4999-12-01"
     assert attri["rainfall_mm"] == 0
     assert attri["tempMin_C"] == 15.0
     assert attri["tempMax_C"] == 24.6

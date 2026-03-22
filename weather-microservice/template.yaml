@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: python3.11
+    CodeUri: .
+    Timeout: 30
+    MemorySize: 128
+
+Resources:
+
+  WeatherBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: clearpath-weather-index-v1
+
+  ClearpathApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Name: clearpath-api
+
+  CollectionLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: collection-lambda
+      Handler: src.lambda_handlers.collection_lambda_handler.collection_lambda_handler
+      Policies:
+        - AmazonS3FullAccess
+        - AmazonDynamoDBFullAccess
+      Events:
+        S3Event:
+          Type: S3
+          Properties:
+            Bucket: !Ref WeatherBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: weather_collected/
+
+  RawLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: raw-lambda
+      Handler: src.lambda_handlers.raw_lambda_handler.raw_lambda_handler
+      Policies:
+        - AmazonS3FullAccess
+        - AmazonDynamoDBFullAccess
+      Events:
+        S3Event:
+          Type: S3
+          Properties:
+            Bucket: !Ref WeatherBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: weather_raw/
+
+  WeatherLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: weather-lambda
+      Handler: src.lambda_handlers.weather_lambda_handler.weather_lambda_handler
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Events:
+        ApiEvent:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ClearpathApi
+            Path: /weather/preprocessed
+            Method: GET
+
+Outputs:
+  ClearpathApi:
+    Description: Clearpath API Gateway endpoint
+    Value: !Sub "https://${ClearpathApi}.execute-api.${AWS::Region}.amazonaws.com/weather/preprocessed"

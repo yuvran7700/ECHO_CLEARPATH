@@ -6,10 +6,8 @@ def extract_attributes(row):
 
     try:
         date = get_date(row)
-    except Exception as e:
-        raise Exception(f"Invalid date input: {e}")
-    # if date is None:
-    #     raise ValueError(f"Invalid date format: {row['Date']}")
+    except Exception:
+        raise Exception(f"Invalid date input: {row['Date']}")
 
     for key, value in row.items():
         key = key.strip()

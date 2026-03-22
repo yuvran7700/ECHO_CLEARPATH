@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 
 def validate_date(date):
@@ -6,4 +6,4 @@ def validate_date(date):
         datetime.strptime(date, "%Y-%m-%d")
         return True
     except Exception:
-        return False
+        raise ValueError(f"Invalid date format: {date}. Expected YYYY-MM-DD")

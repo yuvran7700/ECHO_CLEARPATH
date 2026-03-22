@@ -1,11 +1,10 @@
-import csv
 import logging
-from io import StringIO
 
 from src.dependencies.s3_client import S3_BUCKET_NAME
 from src.marshellers.raw_adage_marshellers import format_raw_adage
 from src.repositories.s3_repo import read_untouched_file, write_file
 from src.services.raw_extraction import extract_attributes
+from src.utils.raw_utils import find_row
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -37,10 +36,15 @@ def raw_lambda_handler(event, context):
 
         try:
             res = read_untouched_file(key)
-            csv_content = res["Body"].read().decode("utf-8-sig")
-            csv_reader = csv.DictReader(StringIO(csv_content))
+            body = res["Body"].read()
+            try:
+                csv_content = body.decode("utf-8-sig")
+            except UnicodeDecodeError:
+                csv_content = body.decode("cp1252")
+            csv_reader = find_row(csv_content)
         except Exception as e:
             logger.error(f"Failed to read CSV from S3: {str(e)}")
+            continue
 
         for row in csv_reader:
             try:
@@ -48,11 +52,9 @@ def raw_lambda_handler(event, context):
                 collect_adage = format_raw_adage(
                     attributes, attributes["date"]
                 )
-
                 constructed_key = (
                     f"weather_collected/{attributes['date']}.json"
                 )
-
                 write_file(constructed_key, collect_adage)
 
             except Exception as e:

@@ -4,9 +4,11 @@ from datetime import datetime
 from src.repositories.s3_repo import read_file
 
 
-def weather_lambda_handler(event, context):
+def ADAGE_lambda_handler(event, context):
     params = event.get("queryStringParameters") or {}
     date = params.get("date", None)
+
+    key = f"weather_collected/{date}.json"
 
     if not date:
         return {
@@ -19,11 +21,12 @@ def weather_lambda_handler(event, context):
     except ValueError:
         return {
             "statusCode": 400,
-            "body": json.dumps({"error": "Invalid date format"}),
+            "body": json.dumps({"error": "Invalid date format - {e}"}),
         }
 
-    rec = read_file(date)
-    if rec is None:
+    try:
+        rec = read_file(key)
+    except ValueError:
         return {
             "statusCode": 404,
             "body": json.dumps({"error": "Record not found"}),
@@ -32,5 +35,5 @@ def weather_lambda_handler(event, context):
     return {
         "statusCode": 200,
         "headers": {"Content-Type": "application/json"},
-        "body": json.dumps(read_file),
+        "body": json.dumps(rec),
     }

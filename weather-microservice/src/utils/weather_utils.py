@@ -2,6 +2,10 @@ import logging
 from datetime import datetime
 from decimal import Decimal
 
+from dateutil import parser
+
+from src.validator.lambda_validators import validate_date
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -128,18 +132,20 @@ def format_date(date):
         date_res = "-".join(date_split)
         return date_res
     except ValueError:
-        return None
+        return date_res
 
 
 def get_date(row):
-    raw_date = row["Date"]
+    raw_date = row["Date"].strip()
     if raw_date is None:
         raise KeyError("Missing Date column")
     date = format_date(raw_date)
-    if date is None:
+    if not validate_date(date):
         raise ValueError(f"Invalid date format: {raw_date}")
 
-    return date
+    d2 = parser.parse(date).date().isoformat()
+
+    return d2
 
 
 def safe_value(value, field_name):

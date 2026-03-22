@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pytest
 from src.lambda_handlers.raw_lambda_handler import (
     raw_lambda_handler,
 )
@@ -15,6 +16,7 @@ def test_raw_date_missing():
 
     delete_file(key)
     delete_record(date)
+    delete_file("weather_collected/3999-12-12.json")
 
     file_path = (
         Path(__file__).resolve().parent.parent.parent
@@ -38,5 +40,5 @@ def test_raw_date_missing():
 
     retrieve_key = "weather_collected/3999-12-12.json"
 
-    result = read_file(retrieve_key)
-    assert result is None
+    with pytest.raises(Exception):
+        read_file(retrieve_key)
