@@ -21,12 +21,12 @@ def ADAGE_lambda_handler(event, context):
     except ValueError:
         return {
             "statusCode": 400,
-            "body": json.dumps({"error": "Invalid date format - {e}"}),
+            "body": json.dumps({"error": "Invalid date format"}),
         }
 
     try:
         rec = read_file(key)
-    except ValueError:
+    except Exception:
         return {
             "statusCode": 404,
             "body": json.dumps({"error": "Record not found"}),
