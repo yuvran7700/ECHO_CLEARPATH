@@ -9,16 +9,16 @@ from src.repositories.s3_repo import (
 from tests.utils.weather_collect_utils import generate_trig_event
 
 
-def test_new_record_works():
-    key = "weather_collected/3999-12-12.json"
-    date = "3999-12-12"
+def test_key_missing():
+    key = "weather_collected/9999-12-12.json"
+    date = "9999-12-12"
 
     delete_file(key)
     delete_record(date)
 
     event = generate_trig_event(
         "ObjectCreated:Put",
-        "clearpath-weather-index",
+        "clearpath-weather-index-v1",
         None,
         "ckfajs;kf",
     )

@@ -7,7 +7,7 @@ from src.repositories.s3_repo import delete_file
 from tests.utils.weather_collect_utils import generate_trig_event
 
 
-def test_new_record_works():
+def test_incorrect_bucket_name():
     key = "weather_collected/3999-12-12.json"
     date = "3999-12-12"
 

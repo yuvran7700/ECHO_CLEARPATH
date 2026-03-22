@@ -1,11 +1,11 @@
-from src.lambda_handlers.weather_lambda_handler import weather_lambda_handler
+from src.lambda_handlers.ADAGE_lambda_handler import ADAGE_lambda_handler
 from src.repositories.db_repo import delete_record
 from src.repositories.s3_repo import delete_file
 
 from tests.utils.weather_collect_utils import generate_weather_query
 
 
-def test_no_record():
+def test_ADAGE_no_record():
     key = "weather_collected/1111-12-12.json"
     date = "1111-12-12"
 
@@ -14,7 +14,7 @@ def test_no_record():
 
     event = generate_weather_query(date)
 
-    result = weather_lambda_handler(event, None)
+    result = ADAGE_lambda_handler(event, None)
 
     assert result["statusCode"] == 404
     assert result["body"] is not None

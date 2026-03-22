@@ -20,7 +20,7 @@ from tests.utils.weather_collect_utils import (
 )
 
 
-def test_new_record_works():
+def test_weather_correct():
     key = "weather_collected/3999-12-12.json"
     date = "3999-12-12"
 
@@ -40,7 +40,7 @@ def test_new_record_works():
 
     event = generate_trig_event(
         "ObjectCreated:Put",
-        "clearpath-weather-index",
+        "clearpath-weather-index-v1",
         key,
         "ckfajs;kf",
     )
@@ -54,4 +54,5 @@ def test_new_record_works():
     assert result["statusCode"] == 200
     assert result["headers"] is not None
     assert result["body"] is not None
+
     assert json.loads(result["body"]) == generate_agage_same_weather()
