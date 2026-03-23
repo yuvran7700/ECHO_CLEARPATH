@@ -3,8 +3,9 @@
 AWS Lambda handler for classifying newly inserted DynamoDB records.
 
 This handler:
+- detects new records uploaded to DynamoDB table "clearpath-alert-data"
 - loops through the DynamoDB stream batch
-- passes each new record to the service layer
+- passes each new record to the service layer to classify and presist them
 - logs processing outcomes for observability
 """
 

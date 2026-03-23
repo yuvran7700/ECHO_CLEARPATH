@@ -88,7 +88,7 @@ def classify_record(record: dict) -> bool:
             False if the record was skipped.
     """
     # Extract date, text and status from DynamoDB stream format
-    date = record.get("Date", {}).get("S")
+    date = record.get("date", {}).get("S")
     text = record.get("text", {}).get("S")
     status_values = record.get("status", {}).get("L", [])
     current_status = [

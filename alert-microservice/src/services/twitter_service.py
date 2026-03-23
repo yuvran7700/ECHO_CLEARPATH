@@ -112,10 +112,10 @@ def add_tweets_to_dynamoDB(parsed_tweets: list) -> None:
 
     for record in data:
         item = {
-            "Date": record["date"],
+            "date": record["date"],
             "account_name": record["account_name"],
             "text": record["master_text"],
-            "status": None,
+            "status": ["collected"],
         }
         put_record(item)
 
