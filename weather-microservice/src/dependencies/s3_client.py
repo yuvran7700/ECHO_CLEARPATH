@@ -1,7 +1,9 @@
 """
 S3 client initialisation and connection testing.
 """
+
 import os
+
 import boto3
 from dotenv import load_dotenv
 

@@ -21,7 +21,7 @@ def update_record(date: str, updates: dict) -> None:
         Key={"date": date},
         UpdateExpression=update_expression,
         ExpressionAttributeNames=expression_names,
-        ExpressionAttributeValues=expression_values
+        ExpressionAttributeValues=expression_values,
     )
 
 
