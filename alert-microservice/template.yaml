@@ -63,3 +63,13 @@ Resources:
       SourceArn: !Sub
         - "arn:aws:execute-api:us-east-1:102882775486:${ApiId}/*/*/alert/collection"
         - ApiId: !ImportValue clearpath-api-id
+
+Outputs:
+  AlertCollectionEndpoint:
+    Description: Alert collection endpoint
+    Value: !Sub
+      - "https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/alert/collection"
+      - ApiId: !ImportValue clearpath-api-id
+  ClassificationLambdaArn:
+    Description: Classification Lambda ARN
+    Value: !GetAtt ClassificationLambda.Arn
