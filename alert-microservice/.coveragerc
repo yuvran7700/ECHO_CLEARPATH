@@ -1,0 +1,15 @@
+[run]
+omit =
+    tests/*
+    notebooks/*
+    model_package/*
+    src/services/sagemaker_service.py
+
+[report]
+omit =
+    tests/*
+    notebooks/*
+    model_package/*
+    src/services/sagemaker_service.py
+skip_empty = True
+show_missing = True
