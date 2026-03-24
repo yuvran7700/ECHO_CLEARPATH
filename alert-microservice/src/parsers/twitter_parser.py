@@ -17,6 +17,18 @@ writing to DynamoDB.
 from datetime import datetime
 from typing import Dict, List
 
+from src.parsers.text_normalisation import normalise_text
+
+
+def is_reply(tweet: dict) -> bool:
+    """
+    Identify reply tweets.
+
+    For this dataset, replies reliably begin with '@' in the tweet text.
+    """
+    text = tweet.get("text", "")
+    return text.strip().startswith("@")
+
 
 def format_date(created_at: str):
     """
@@ -43,7 +55,7 @@ def extract_metadata(tweets: list):
     Extract only essential metadata from tweets.
 
     Retains only: account_name, date (YYYY-MM-DD), text
-    Removes all other metadata (likes, retweets, IDs, etc.)
+    Removes replies and all other unnecessary metadata.
 
     Args:
         tweets (list): list of tweet objects
@@ -51,10 +63,12 @@ def extract_metadata(tweets: list):
     Returns:
         list: List of dictionaries with account_name, date, and text fields
     """
-
     extracted_tweets = []
 
     for tweet in tweets:
+        if is_reply(tweet):
+            continue
+
         extracted_tweets.append(
             {
                 "account_name": tweet.get("author", {}).get("name", "Unknown"),
@@ -89,7 +103,31 @@ def collate_tweets(cleaned_tweets: List[Dict]) -> List[Dict]:
     return list(collated.values())
 
 
-def parse_tweets(tweets):
+def deduplicate_tweets(cleaned_tweets: List[Dict]) -> List[Dict]:
+    """
+    Remove duplicate tweets within the same day based on normalised text.
+    Keeps identical tweets if they occur on different dates.
+    """
+    seen = set()
+    unique_tweets = []
+
+    for tweet in cleaned_tweets:
+        normalized = normalise_text(tweet["text"])
+        key = (tweet["date"], normalized)
+
+        if key in seen:
+            continue
+
+        seen.add(key)
+        unique_tweets.append(tweet)
+    return unique_tweets
+
+
+def parse_tweets(tweets: list[dict], collate: bool = True) -> list[dict]:
     extracted = extract_metadata(tweets)
-    collated = collate_tweets(extracted)
-    return collated
+    extracted = deduplicate_tweets(extracted)
+
+    if collate:
+        return collate_tweets(extracted)
+
+    return extracted
