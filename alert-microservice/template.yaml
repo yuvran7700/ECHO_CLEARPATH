@@ -42,7 +42,7 @@ Resources:
   TwitterCollectionIntegration:
     Type: AWS::ApiGatewayV2::Integration
     Properties:
-      ApiId: qooiatwky2
+      ApiId: !ImportValue clearpath-api-id
       IntegrationType: AWS_PROXY
       IntegrationUri: !GetAtt TwitterCollectionLambda.Arn
       PayloadFormatVersion: "2.0"
@@ -50,7 +50,7 @@ Resources:
   TwitterCollectionRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
-      ApiId: qooiatwky2
+      ApiId: !ImportValue clearpath-api-id
       RouteKey: "GET /alert/collection"
       Target: !Sub integrations/${TwitterCollectionIntegration}
 
@@ -60,12 +60,6 @@ Resources:
       FunctionName: !GetAtt TwitterCollectionLambda.Arn
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
-      SourceArn: arn:aws:execute-api:us-east-1:102882775486:qooiatwky2/*/*/alert/collection
-
-Outputs:
-  ClassificationLambdaArn:
-    Description: Classification Lambda ARN
-    Value: !GetAtt ClassificationLambda.Arn
-  AlertCollectionEndpoint:
-    Description: Alert collection endpoint
-    Value: https://qooiatwky2.execute-api.us-east-1.amazonaws.com/alert/collection
+      SourceArn: !Sub
+        - "arn:aws:execute-api:us-east-1:102882775486:${ApiId}/*/*/alert/collection"
+        - ApiId: !ImportValue clearpath-api-id
