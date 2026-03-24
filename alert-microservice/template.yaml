@@ -5,7 +5,7 @@ Globals:
   Function:
     Runtime: python3.11
     CodeUri: .
-    Timeout: 30
+    Timeout: 60
     MemorySize: 128
 
 Resources:
@@ -26,7 +26,46 @@ Resources:
             BatchSize: 10
             Enabled: true
 
+  TwitterCollectionLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: twitter-collection-lambda
+      Handler: src.lambda_handlers.twitter_collection_handler.twitter_collection_handler
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AmazonSSMReadOnlyAccess
+      Environment:
+        Variables:
+          TWITTER_API_KEY: "{{resolve:ssm:/clearpath/twitter-api-key}}"
+
+
+  TwitterCollectionIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: qooiatwky2
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt TwitterCollectionLambda.Arn
+      PayloadFormatVersion: "2.0"
+
+  TwitterCollectionRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: qooiatwky2
+      RouteKey: "GET /alert/collection"
+      Target: !Sub integrations/${TwitterCollectionIntegration}
+
+  TwitterCollectionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt TwitterCollectionLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: arn:aws:execute-api:us-east-1:102882775486:qooiatwky2/*/*/alert/collection
+
 Outputs:
-  ClassificationLambda:
+  ClassificationLambdaArn:
     Description: Classification Lambda ARN
     Value: !GetAtt ClassificationLambda.Arn
+  AlertCollectionEndpoint:
+    Description: Alert collection endpoint
+    Value: https://qooiatwky2.execute-api.us-east-1.amazonaws.com/alert/collection
