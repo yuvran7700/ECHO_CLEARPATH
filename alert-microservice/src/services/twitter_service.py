@@ -9,12 +9,13 @@ import time
 from datetime import datetime, timedelta
 
 from src.dependencies.twitter_client import TwitterClient
+from src.marshallers.twitter_adage_marshaller import marshal_tweets_to_adage
 from src.parsers.twitter_parser import parse_tweets
 from src.repositories.db_repo import put_record
 
 # Date range for tweets to fetch (can be updated for other periods)
-START_DATE = datetime.strptime("2026-02-01", "%Y-%m-%d")
-END_DATE = datetime.strptime("2026-03-18", "%Y-%m-%d")
+START_DATE = "2026-02-01"
+END_DATE = "2026-03-18"
 
 # Base search query for Sydney Trains disruptions (used for weekly
 #  query generation)
@@ -25,21 +26,30 @@ BASE_QUERY = (
 )
 
 
-def procress_tweets_and_upload_to_dynamo_db():
+def fetch_and_format_tweets(
+    base_query: str,
+    start_date: str,
+    end_date: str,
+) -> list[dict]:
     """
-    Main pipeline to fetch tweets, parse them, and add them to DynamoDB.
-    Orchestrates the three core steps of the service.
+    Fetch tweets from Twitter and parse them into structured records.
+
+    Args:
+        base_query (str): Twitter search query without date filters.
+        start_date (str): Start date in YYYY-MM-DD format.
+        end_date (str): End date in YYYY-MM-DD format.
+
+    Returns:
+        list[dict]: Parsed tweet records.
     """
-    all_tweets = fetch_tweets()  # Step 1: Retrieve raw tweets
-    formatted_tweets = parse_tweets(
-        all_tweets
-    )  # Step 2: Format tweets into structured data
-    add_tweets_to_dynamoDB(
-        formatted_tweets
-    )  # Step 3: Store structured tweets in DB
+    raw_tweets = fetch_tweets(base_query, start_date, end_date)
+    formatted_tweets = parse_tweets(raw_tweets)
+    return formatted_tweets
 
 
-def generate_weekly_queries(start_date: datetime, end_date: datetime) -> list:
+def generate_weekly_queries(
+    base_query: str, start_date: datetime, end_date: datetime
+) -> list:
     """
     Generate weekly search queries for the given date range.
     Each query spans 7 days. If the last week is shorter, it ends at end_date.
@@ -63,14 +73,18 @@ def generate_weekly_queries(start_date: datetime, end_date: datetime) -> list:
 
         since_date = current.strftime("%Y-%m-%d")
         until_date = next_week.strftime("%Y-%m-%d")
-        q = f"{BASE_QUERY} since:{since_date} until:{until_date}"
+        q = f"{base_query} since:{since_date} until:{until_date}"
 
         queries.append(q)
         current = next_week
     return queries
 
 
-def fetch_tweets() -> list:
+def fetch_tweets(
+    base_query: str,
+    start_date: str,
+    end_date: str,
+) -> list[dict]:
     """
     Retrieve tweets from Twitter using weekly queries.
     Handles pagination and deduplication of tweets.
@@ -81,8 +95,10 @@ def fetch_tweets() -> list:
     all_tweets = []
     client = TwitterClient()
 
-    queries = generate_weekly_queries(START_DATE, END_DATE)
-    print(f"DEBUG: Generated {len(queries)} weekly queries\n")
+    start = datetime.strptime(start_date, "%Y-%m-%d")
+    end = datetime.strptime(end_date, "%Y-%m-%d")
+
+    queries = generate_weekly_queries(base_query, start, end)
 
     for q in queries:
         # Fetch tweets for this week
@@ -120,7 +136,53 @@ def add_tweets_to_dynamoDB(parsed_tweets: list) -> None:
         put_record(item)
 
 
+def process_tweets_and_upload_to_dynamodb():
+    """
+    Main pipeline to fetch tweets, parse them, and add them to DynamoDB.
+    Orchestrates the three core steps of the service.
+    """
+    # Step 1: Retrieve raw tweets and format them
+    tweets = fetch_and_format_tweets(
+        base_query=BASE_QUERY,
+        start_date=START_DATE,
+        end_date=END_DATE,
+    )
+    # Step 2: Store structured tweets in DB
+    add_tweets_to_dynamoDB(tweets)
+
+
+def process_tweets_and_return_to_user(
+    base_query: str,
+    start_date: str,
+    end_date: str,
+) -> dict:
+    """
+    Fetch tweets from Twitter, parse them into structured records,
+    and return them in ADAGE 3.0 format.
+
+    Args:
+        base_query (str): Twitter search query without date filters.
+        start_date (str): Start date in YYYY-MM-DD format.
+        end_date (str): End date in YYYY-MM-DD format.
+
+    Returns:
+        dict: Tweets formatted as an ADAGE 3.0 dataset object.
+    """
+    tweets = fetch_and_format_tweets(
+        base_query=base_query,
+        start_date=start_date,
+        end_date=end_date,
+    )
+
+    return marshal_tweets_to_adage(
+        tweets=tweets,
+        base_query=base_query,
+        start_date=start_date,
+        end_date=end_date,
+    )
+
+
 # TEST MAIN
 # If the file is run directly, execute the full pipeline
 if __name__ == "__main__":
-    procress_tweets_and_upload_to_dynamo_db()
+    process_tweets_and_upload_to_dynamodb()
