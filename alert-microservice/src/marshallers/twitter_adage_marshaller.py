@@ -41,7 +41,7 @@ def marshal_tweets_to_adage(
             "event_type": "transport disruption tweet",
             "attribute": {
                 "account_name": tweet["account_name"],
-                "text": tweet["master_text"],
+                "text": tweet["text"],
                 "date": tweet["date"],
             },
         }

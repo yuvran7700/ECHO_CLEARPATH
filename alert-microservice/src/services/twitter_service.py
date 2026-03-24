@@ -30,6 +30,7 @@ def fetch_and_format_tweets(
     base_query: str,
     start_date: str,
     end_date: str,
+    collate: bool = True,
 ) -> list[dict]:
     """
     Fetch tweets from Twitter and parse them into structured records.
@@ -38,12 +39,14 @@ def fetch_and_format_tweets(
         base_query (str): Twitter search query without date filters.
         start_date (str): Start date in YYYY-MM-DD format.
         end_date (str): End date in YYYY-MM-DD format.
+        collate (bool): If True, collate tweets from the same account on the
+            same day into a single record.
 
     Returns:
         list[dict]: Parsed tweet records.
     """
     raw_tweets = fetch_tweets(base_query, start_date, end_date)
-    formatted_tweets = parse_tweets(raw_tweets)
+    formatted_tweets = parse_tweets(raw_tweets, collate=collate)
     return formatted_tweets
 
 
@@ -73,7 +76,11 @@ def generate_weekly_queries(
 
         since_date = current.strftime("%Y-%m-%d")
         until_date = next_week.strftime("%Y-%m-%d")
-        q = f"{base_query} since:{since_date} until:{until_date}"
+        q = (
+            f"{base_query} "
+            f"-is:reply -is:retweet "
+            f"since:{since_date} until:{until_date}"
+        )
 
         queries.append(q)
         current = next_week
@@ -146,6 +153,7 @@ def process_tweets_and_upload_to_dynamodb():
         base_query=BASE_QUERY,
         start_date=START_DATE,
         end_date=END_DATE,
+        collate=True,
     )
     # Step 2: Store structured tweets in DB
     add_tweets_to_dynamoDB(tweets)
@@ -172,6 +180,7 @@ def process_tweets_and_return_to_user(
         base_query=base_query,
         start_date=start_date,
         end_date=end_date,
+        collate=False,
     )
 
     return marshal_tweets_to_adage(
@@ -185,4 +194,10 @@ def process_tweets_and_return_to_user(
 # TEST MAIN
 # If the file is run directly, execute the full pipeline
 if __name__ == "__main__":
-    process_tweets_and_upload_to_dynamodb()
+    result = process_tweets_and_return_to_user(
+        base_query=BASE_QUERY,
+        start_date="2026-03-23",
+        end_date="2026-03-24",
+    )
+
+    print(result)
