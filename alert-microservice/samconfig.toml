@@ -1,0 +1,13 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "alert-microservice"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+confirm_changeset = true
+s3_prefix = "alert-microservice"
+image_repositories = []
+
+[default.global.parameters]
+region = "us-east-1"
