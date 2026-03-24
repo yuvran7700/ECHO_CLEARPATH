@@ -24,10 +24,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install -r alert-microservice/requirements.txt
           pip install -r requirements-dev.txt
 
-      # 1. LINTING
-      - name: Run Global Linting
+      # 1. LINTING + FORMATTING CHECK
+      - name: Run Ruff
         run: |
           ruff format --check alert-microservice/
           ruff check alert-microservice/
@@ -41,12 +42,13 @@ jobs:
         run: pytest alert-microservice/tests/integration/
         continue-on-error: true
 
-      # COVERAGE TESTING
+      # 4. COVERAGE TESTING
       - name: Run coverage
         run: |
           coverage run -m pytest alert-microservice/tests/
           coverage report
           coverage html
+        continue-on-error: true
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4

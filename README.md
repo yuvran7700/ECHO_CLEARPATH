@@ -51,7 +51,17 @@ git checkout -b feat/weather/req-num/your-feature-name
    - Ensure at least **one team member** reviews and approves
    - Evidence of comments/discussion must be visible in the PR before merging
 
+**Optional:** To manually run pre-commit checks on specific files or folders:
+```bash
+# Single file
+pre-commit run --files weather-microservice/app.py
 
+# Multiple files
+pre-commit run --files weather-microservice/app.py weather-microservice/utils.py
+
+# Entire folder
+pre-commit run --files alert-microservice/**/*
+```
 ---
 
 ### 3. Commit Message Standards
