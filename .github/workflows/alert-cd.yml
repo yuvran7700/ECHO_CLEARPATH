@@ -1,11 +1,11 @@
-name: Weather CD
+name: Alert CD
 
 on:
   push:
     branches:
       - "main"
     paths:
-      - "weather-microservice/**"
+      - "alert-microservice/**"
 
 jobs:
   deploy:
@@ -35,8 +35,8 @@ jobs:
 
       - name: SAM Build
         run: sam build
-        working-directory: weather-microservice
+        working-directory: alert-microservice
 
       - name: SAM Deploy
         run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
-        working-directory: weather-microservice
+        working-directory: alert-microservice
