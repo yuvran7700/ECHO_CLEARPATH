@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+
+  ClearpathApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Name: clearpath-api
+
+Outputs:
+  ApiId:
+    Description: Clearpath API Gateway ID
+    Value: !Ref ClearpathApi
+    Export:
+      Name: clearpath-api-id
+
+  ApiEndpoint:
+    Description: Clearpath API Gateway endpoint
+    Value: !Sub "https://${ClearpathApi}.execute-api.${AWS::Region}.amazonaws.com"
+    Export:
+      Name: clearpath-api-endpoint

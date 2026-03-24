@@ -15,11 +15,6 @@ Resources:
     Properties:
       BucketName: clearpath-weather-index-v1
 
-  ClearpathApi:
-    Type: AWS::Serverless::HttpApi
-    Properties:
-      Name: clearpath-api
-
   CollectionLambda:
     Type: AWS::Serverless::Function
     Properties:
@@ -67,15 +62,73 @@ Resources:
       Handler: src.lambda_handlers.weather_lambda_handler.weather_lambda_handler
       Policies:
         - AmazonDynamoDBFullAccess
-      Events:
-        ApiEvent:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref ClearpathApi
-            Path: /weather/preprocessed
-            Method: GET
+
+  ADAGELambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: adage-lambda
+      Handler: src.lambda_handlers.ADAGE_lambda_handler.ADAGE_lambda_handler
+      Policies:
+        - AmazonS3FullAccess
+
+  WeatherIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !ImportValue clearpath-api-id
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt WeatherLambda.Arn
+      PayloadFormatVersion: "2.0"
+
+  WeatherRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !ImportValue clearpath-api-id
+      RouteKey: "GET /weather/preprocessed"
+      Target: !Sub integrations/${WeatherIntegration}
+
+  WeatherPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt WeatherLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub
+        - "arn:aws:execute-api:us-east-1:102882775486:${ApiId}/*/*/weather/preprocessed"
+        - ApiId: !ImportValue clearpath-api-id
+
+  ADAGEIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !ImportValue clearpath-api-id
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt ADAGELambda.Arn
+      PayloadFormatVersion: "2.0"
+
+  ADAGERoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !ImportValue clearpath-api-id
+      RouteKey: "GET /weather/collection"
+      Target: !Sub integrations/${ADAGEIntegration}
+
+  ADAGEPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt ADAGELambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub
+        - "arn:aws:execute-api:us-east-1:102882775486:${ApiId}/*/*/weather/collection"
+        - ApiId: !ImportValue clearpath-api-id
 
 Outputs:
-  ClearpathApi:
-    Description: Clearpath API Gateway endpoint
-    Value: !Sub "https://${ClearpathApi}.execute-api.${AWS::Region}.amazonaws.com/weather/preprocessed"
+  WeatherPreprocessedEndpoint:
+    Description: Weather preprocessed endpoint
+    Value: !Sub
+      - "https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/weather/preprocessed"
+      - ApiId: !ImportValue clearpath-api-id
+  WeatherADAGEEndpoint:
+    Description: Weather ADAGE endpoint
+    Value: !Sub
+      - "https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/weather/collection"
+      - ApiId: !ImportValue clearpath-api-id
