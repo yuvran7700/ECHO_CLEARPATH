@@ -32,7 +32,7 @@ cp .env.example .env
 
 ### Step 3: Get AWS Credentials
 
-Use my AWS credentials to log into learner lab: 
+Use my AWS credentials to log into learner lab:
 
 Once logged in:
 1. Go to **Modules**

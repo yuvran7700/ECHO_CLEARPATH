@@ -1,5 +1,9 @@
 """
+<<<<<<< HEAD
+DynamoDB client initialisation and connection testing. s
+=======
 DynamoDB client initialisation and connection testing.
+>>>>>>> main
 """
 
 import os

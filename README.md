@@ -60,7 +60,11 @@ pre-commit run --files weather-microservice/app.py
 pre-commit run --files weather-microservice/app.py weather-microservice/utils.py
 
 # Entire folder
+<<<<<<< HEAD
+pre-commit run --files weather-microservice/**/*
+=======
 pre-commit run --files alert-microservice/**/*
+>>>>>>> main
 ```
 ---
 
@@ -86,21 +90,21 @@ To ensure your environment matches the team standards, run:
 > **Windows users:** replace `source venv/bin/activate` with `source venv/Scripts/activate`
 ```bash
 
-# 1. Clone the new repo 
-  git clone git@github.com:yuvran7700/ECHO_CLEARPATH.git 
+# 1. Clone the new repo
+  git clone git@github.com:yuvran7700/ECHO_CLEARPATH.git
   cd ECHO_CLEARPATH
 
 # 2. Create and Activate Virtual Environment (ROOT LEVEL)
-  python -m venv venv 
+  python -m venv venv
   source venv/bin/activate
 
 # 3. install dependencies
   pip install -r requirements.txt
-  # Install dev tools (pre-commit, linters, etc.) 
-  pip install -r requirements-dev.txt 
+  # Install dev tools (pre-commit, linters, etc.)
+  pip install -r requirements-dev.txt
   # Install microservice-specific dependencies (For your microservice)
-  pip install -r weather-microservice/requirements.txt 
-  pip install -r alert-microservice/requirements.txt 
+  pip install -r weather-microservice/requirements.txt
+  pip install -r alert-microservice/requirements.txt
   pip install -r transport-microservice/requirements.txt
 
 # 4. Set Up Pre-Commit Hooks

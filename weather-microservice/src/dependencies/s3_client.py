@@ -1,5 +1,5 @@
 """
-S3 client initialisation and connection testing.
+S3 client initialisation and connection testing.s
 """
 
 import os
@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 AWS_REGION = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
-S3_BUCKET_NAME = "clearpath-weather-data"
+S3_BUCKET_NAME = "clearpath-weather-index-v1"
 
 # Initialise S3 client
 s3_client = boto3.client("s3", region_name=AWS_REGION)
