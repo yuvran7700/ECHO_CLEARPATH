@@ -2,15 +2,24 @@
 from src.marshallers.twitter_adage_marshaller import marshal_tweets_to_adage
 
 
-def test_marshal_tweets_to_adage_returns_expected_structure(
-    sample_parsed_tweet,
-):
+def test_marshal_tweets_to_adage_returns_expected_structure():
     """
     Test that parsed tweets are converted into the expected
     ADAGE 3.0 dataset structure.
     """
+    tweets = [
+        {
+            "account_name": "T1 Sydney Trains",
+            "date": "2026-02-02",
+            "text": (
+                "Allow extra travel time due to an issue with a freight "
+                "train."
+            ),
+        }
+    ]
+
     result = marshal_tweets_to_adage(
-        tweets=sample_parsed_tweet,
+        tweets=tweets,
         base_query="(from:T1SydneyTrains) (delay OR disruption)",
         start_date="2026-02-01",
         end_date="2026-02-20",
@@ -35,5 +44,5 @@ def test_marshal_tweets_to_adage_returns_expected_structure(
     assert event["time_object"]["timezone"] == "UTC"
 
     assert event["attribute"]["account_name"] == "T1 Sydney Trains"
-    assert event["attribute"]["text"] == sample_parsed_tweet[0]["master_text"]
+    assert event["attribute"]["text"] == tweets[0]["text"]
     assert event["attribute"]["date"] == "2026-02-02"

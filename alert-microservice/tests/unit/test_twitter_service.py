@@ -26,10 +26,12 @@ def test_weekly_queries_generation():
 
     queries = generate_weekly_queries(BASE_QUERY, start, end)
 
+    expected_base = f"{BASE_QUERY} -is:reply -is:retweet"
+
     assert len(queries) == 3
-    assert f"{BASE_QUERY} since:2026-02-01 until:2026-02-08" == queries[0]
-    assert f"{BASE_QUERY} since:2026-02-08 until:2026-02-15" == queries[1]
-    assert f"{BASE_QUERY} since:2026-02-15 until:2026-02-20" == queries[2]
+    assert f"{expected_base} since:2026-02-01 until:2026-02-08" == queries[0]
+    assert f"{expected_base} since:2026-02-08 until:2026-02-15" == queries[1]
+    assert f"{expected_base} since:2026-02-15 until:2026-02-20" == queries[2]
 
 
 @patch("src.services.twitter_service.TwitterClient")
@@ -58,7 +60,10 @@ def test_fetch_calls_api_for_each_query(mock_sleep, mock_queries, mock_client):
 @patch("src.services.twitter_service.generate_weekly_queries")
 @patch("src.services.twitter_service.time.sleep")
 def test_fetch_tweets_removes_all_duplicate_tweets(
-    mock_sleep, mock_queries, mock_client, sample_tweet_raw_response
+    mock_sleep,
+    mock_queries,
+    mock_client,
+    sample_tweet_raw_response,
 ):
     """
     Test fetch_tweets returns only unique tweets.
@@ -142,7 +147,7 @@ def test_process_pipeline_with_realistic_data(
     sample_parsed_tweet,
 ):
     """
-    Test the full service pipeline from fetch to parse to DB upload.
+    Test the full DynamoDB service pipeline from fetch to parse to DB upload.
     """
     mock_fetch.return_value = [sample_tweet_raw_response]
     mock_parse.return_value = sample_parsed_tweet
@@ -154,7 +159,10 @@ def test_process_pipeline_with_realistic_data(
         "2026-02-01",
         "2026-03-18",
     )
-    mock_parse.assert_called_once_with([sample_tweet_raw_response])
+    mock_parse.assert_called_once_with(
+        [sample_tweet_raw_response],
+        collate=True,
+    )
     mock_add.assert_called_once_with(sample_parsed_tweet)
 
 
@@ -166,7 +174,7 @@ def test_process_tweets_and_return_to_user_calls_dependencies_correctly(
     sample_parsed_tweet,
 ):
     """
-    Test that the service fetches formatted tweets and passes them
+    Test that the ADAGE service fetches formatted tweets and passes them
     to the ADAGE marshaller with the correct arguments.
     """
     base_query = "(from:T1SydneyTrains) (delay OR disruption)"
@@ -197,6 +205,7 @@ def test_process_tweets_and_return_to_user_calls_dependencies_correctly(
         base_query=base_query,
         start_date=start_date,
         end_date=end_date,
+        collate=False,
     )
 
     mock_marshal.assert_called_once_with(
