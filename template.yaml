@@ -7,6 +7,15 @@ Resources:
     Type: AWS::Serverless::HttpApi
     Properties:
       Name: clearpath-api
+      Description: "ClearPath shared API Gateway"
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowMethods:
+          - GET
+          - OPTIONS
+        AllowHeaders:
+          - "*"
 
 Outputs:
   ApiId:
