@@ -1,13 +1,27 @@
 version = 0.1
 
-[default.deploy.parameters]
-stack_name = "alert-microservice"
+[staging.global.parameters]
+region = "us-east-1"
+
+[staging.deploy.parameters]
+stack_name = "alert-microservice-staging"
 region = "us-east-1"
 capabilities = "CAPABILITY_IAM"
 resolve_s3 = true
-confirm_changeset = true
-s3_prefix = "alert-microservice"
+s3_prefix = "alert-microservice-staging"
+confirm_changeset = false
+parameter_overrides = "Environment=staging ApiId=/clearpath/staging/api-id"
 image_repositories = []
 
-[default.global.parameters]
+[prod.global.parameters]
 region = "us-east-1"
+
+[prod.deploy.parameters]
+stack_name = "alert-microservice-prod"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+s3_prefix = "alert-microservice-prod"
+confirm_changeset = true
+parameter_overrides = "Environment=prod ApiId=/clearpath/prod/api-id"
+image_repositories = []
