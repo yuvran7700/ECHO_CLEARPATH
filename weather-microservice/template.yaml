@@ -1,24 +1,51 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
+Parameters:
+  Environment:
+    Type: String
+    Default: staging
+    AllowedValues:
+      - staging
+      - prod
+  ApiId:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /clearpath/staging/api-id
+
+Mappings:
+  EnvConfig:
+    staging:
+      BucketName: clearpath-weather-index-v1-staging
+      TableName: clearpath-weather-data-staging
+    prod:
+      BucketName: clearpath-weather-index-v1-prod
+      TableName: clearpath-weather-data
+
 Globals:
   Function:
     Runtime: python3.11
     CodeUri: .
     Timeout: 30
     MemorySize: 128
+    Environment:
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        S3_BUCKET_NAME: !FindInMap [EnvConfig, !Ref Environment, BucketName]
+        WEATHER_TABLE_NAME: !FindInMap [EnvConfig, !Ref Environment, TableName]
 
 Resources:
 
   WeatherBucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
-      BucketName: clearpath-weather-index-v1
+      BucketName: !FindInMap [EnvConfig, !Ref Environment, BucketName]
 
   CollectionLambda:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: collection-lambda
+      FunctionName: !Sub "collection-lambda-${Environment}"
       Handler: src.lambda_handlers.collection_lambda_handler.collection_lambda_handler
       Policies:
         - AmazonS3FullAccess
@@ -38,7 +65,7 @@ Resources:
   RawLambda:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: raw-lambda
+      FunctionName: !Sub "raw-lambda-${Environment}"
       Handler: src.lambda_handlers.raw_lambda_handler.raw_lambda_handler
       Policies:
         - AmazonS3FullAccess
@@ -58,7 +85,7 @@ Resources:
   WeatherLambda:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: weather-lambda
+      FunctionName: !Sub "weather-lambda-${Environment}"
       Handler: src.lambda_handlers.weather_lambda_handler.weather_lambda_handler
       Policies:
         - AmazonDynamoDBFullAccess
@@ -66,7 +93,7 @@ Resources:
   ADAGELambda:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: adage-lambda
+      FunctionName: !Sub "adage-lambda-${Environment}"
       Handler: src.lambda_handlers.ADAGE_lambda_handler.ADAGE_lambda_handler
       Policies:
         - AmazonS3FullAccess
@@ -74,7 +101,7 @@ Resources:
   WeatherIntegration:
     Type: AWS::ApiGatewayV2::Integration
     Properties:
-      ApiId: !ImportValue clearpath-api-id
+      ApiId: !Ref ApiId
       IntegrationType: AWS_PROXY
       IntegrationUri: !GetAtt WeatherLambda.Arn
       PayloadFormatVersion: "2.0"
@@ -82,9 +109,9 @@ Resources:
   WeatherRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
-      ApiId: !ImportValue clearpath-api-id
+      ApiId: !Ref ApiId
       RouteKey: "GET /weather/preprocessed"
-      Target: !Sub integrations/${WeatherIntegration}
+      Target: !Sub "integrations/${WeatherIntegration}"
 
   WeatherPermission:
     Type: AWS::Lambda::Permission
@@ -92,14 +119,12 @@ Resources:
       FunctionName: !GetAtt WeatherLambda.Arn
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
-      SourceArn: !Sub
-        - "arn:aws:execute-api:us-east-1:102882775486:${ApiId}/*/*/weather/preprocessed"
-        - ApiId: !ImportValue clearpath-api-id
+      SourceArn: !Sub "arn:aws:execute-api:us-east-1:102882775486:${ApiId}/*/*/weather/preprocessed"
 
   ADAGEIntegration:
     Type: AWS::ApiGatewayV2::Integration
     Properties:
-      ApiId: !ImportValue clearpath-api-id
+      ApiId: !Ref ApiId
       IntegrationType: AWS_PROXY
       IntegrationUri: !GetAtt ADAGELambda.Arn
       PayloadFormatVersion: "2.0"
@@ -107,9 +132,9 @@ Resources:
   ADAGERoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
-      ApiId: !ImportValue clearpath-api-id
+      ApiId: !Ref ApiId
       RouteKey: "GET /weather/collection"
-      Target: !Sub integrations/${ADAGEIntegration}
+      Target: !Sub "integrations/${ADAGEIntegration}"
 
   ADAGEPermission:
     Type: AWS::Lambda::Permission
@@ -117,18 +142,12 @@ Resources:
       FunctionName: !GetAtt ADAGELambda.Arn
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
-      SourceArn: !Sub
-        - "arn:aws:execute-api:us-east-1:102882775486:${ApiId}/*/*/weather/collection"
-        - ApiId: !ImportValue clearpath-api-id
+      SourceArn: !Sub "arn:aws:execute-api:us-east-1:102882775486:${ApiId}/*/*/weather/collection"
 
 Outputs:
   WeatherPreprocessedEndpoint:
     Description: Weather preprocessed endpoint
-    Value: !Sub
-      - "https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/weather/preprocessed"
-      - ApiId: !ImportValue clearpath-api-id
+    Value: !Sub "https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/weather/preprocessed"
   WeatherADAGEEndpoint:
     Description: Weather ADAGE endpoint
-    Value: !Sub
-      - "https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/weather/collection"
-      - ApiId: !ImportValue clearpath-api-id
+    Value: !Sub "https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/weather/collection"
