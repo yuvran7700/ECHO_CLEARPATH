@@ -3,12 +3,12 @@ name: Weather CD
 on:
   push:
     branches:
-      - "main"
+      - "develop/weather-microservice"
     paths:
       - "weather-microservice/**"
 
 jobs:
-  deploy:
+  deploy-staging:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,14 +29,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Deploy shared clearpath-api stack
-        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
-        working-directory: .
-
       - name: SAM Build
         run: sam build
         working-directory: weather-microservice
 
-      - name: SAM Deploy
-        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
+      - name: SAM Deploy Staging
+        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --config-env staging
         working-directory: weather-microservice

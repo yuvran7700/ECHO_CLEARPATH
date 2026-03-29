@@ -1,13 +1,25 @@
 version = 0.1
 
-[default.deploy.parameters]
-stack_name = "clearpath-api"
+[staging.global.parameters]
+region = "us-east-1"
+
+[staging.deploy.parameters]
+stack_name = "clearpath-api-staging"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+confirm_changeset = false
+s3_prefix = "clearpath-api-staging"
+parameter_overrides = "Environment=staging"
+
+[prod.global.parameters]
+region = "us-east-1"
+
+[prod.deploy.parameters]
+stack_name = "clearpath-api-prod"
 region = "us-east-1"
 capabilities = "CAPABILITY_IAM"
 resolve_s3 = true
 confirm_changeset = true
-s3_prefix = "clearpath-api"
-image_repositories = []
-
-[default.global.parameters]
-region = "us-east-1"
+s3_prefix = "clearpath-api-prod"
+parameter_overrides = "Environment=prod"
