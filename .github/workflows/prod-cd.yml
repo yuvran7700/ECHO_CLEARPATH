@@ -7,10 +7,13 @@ on:
     paths:
       - "weather-microservice/**"
       - "alert-microservice/**"
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   deploy-weather-prod:
     runs-on: ubuntu-latest
+    environment: production
 
     steps:
       - uses: actions/checkout@v4
@@ -40,6 +43,7 @@ jobs:
 
   deploy-alert-prod:
     runs-on: ubuntu-latest
+    environment: production
 
     steps:
       - uses: actions/checkout@v4
