@@ -7,6 +7,8 @@ on:
     paths:
       - "weather-microservice/**"
       - "alert-microservice/**"
+      - "testing-microservice/**"
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -41,6 +43,37 @@ jobs:
         run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --config-env prod
         working-directory: weather-microservice
 
+      - name: Install testing dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r testing-microservice/requirements.txt
+
+      - name: Create reports directory
+        run: mkdir -p testing-microservice/reports
+
+      - name: Run weather prod tests
+        run: |
+          pytest testing-microservice/tests/weather \
+            --env prod \
+            --junitxml=testing-microservice/reports/weather-prod-results.xml
+
+      - name: Generate weather prod report
+        run: |
+          python testing-microservice/generate_report.py \
+            --xml testing-microservice/reports/weather-prod-results.xml \
+            --service weather \
+            --env prod \
+            --out testing-microservice/reports/weather-prod-report.txt
+
+      - name: Upload weather prod test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: weather-prod-test-report
+          path: |
+            testing-microservice/reports/weather-prod-results.xml
+            testing-microservice/reports/weather-prod-report.txt
+
   deploy-alert-prod:
     runs-on: ubuntu-latest
     environment: production
@@ -70,3 +103,34 @@ jobs:
       - name: SAM Deploy Prod
         run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --config-env prod
         working-directory: alert-microservice
+
+      - name: Install testing dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r testing-microservice/requirements.txt
+
+      - name: Create reports directory
+        run: mkdir -p testing-microservice/reports
+
+      - name: Run alert prod tests
+        run: |
+          pytest testing-microservice/tests/alert \
+            --env prod \
+            --junitxml=testing-microservice/reports/alert-prod-results.xml
+
+      - name: Generate alert prod report
+        run: |
+          python testing-microservice/generate_report.py \
+            --xml testing-microservice/reports/alert-prod-results.xml \
+            --service alert \
+            --env prod \
+            --out testing-microservice/reports/alert-prod-report.txt
+
+      - name: Upload alert prod test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: alert-prod-test-report
+          path: |
+            testing-microservice/reports/alert-prod-results.xml
+            testing-microservice/reports/alert-prod-report.txt
