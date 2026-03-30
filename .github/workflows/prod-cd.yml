@@ -53,7 +53,7 @@ jobs:
 
       - name: Run weather prod tests
         run: |
-          pytest testing-microservice/tests/weather \
+          pytest testing-microservice/tests/weather/smoke \
             --env prod \
             --junitxml=testing-microservice/reports/weather-prod-results.xml
 
@@ -114,7 +114,7 @@ jobs:
 
       - name: Run alert prod tests
         run: |
-          pytest testing-microservice/tests/alert \
+          pytest testing-microservice/tests/alert/smoke \
             --env prod \
             --junitxml=testing-microservice/reports/alert-prod-results.xml
 
