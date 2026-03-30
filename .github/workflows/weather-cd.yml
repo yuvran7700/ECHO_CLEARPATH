@@ -6,6 +6,10 @@ on:
       - "develop/weather-microservice"
     paths:
       - "weather-microservice/**"
+      - "testing-microservice/**"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   deploy-staging:
@@ -36,3 +40,34 @@ jobs:
       - name: SAM Deploy Staging
         run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --config-env staging
         working-directory: weather-microservice
+
+      - name: Install testing dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r testing-microservice/requirements.txt
+
+      - name: Create reports directory
+        run: mkdir -p testing-microservice/reports
+
+      - name: Run weather staging tests
+        run: |
+          pytest testing-microservice/tests/weather \
+            --env staging \
+            --junitxml=testing-microservice/reports/weather-staging-results.xml
+
+      - name: Generate weather staging report
+        run: |
+          python testing-microservice/generate_report.py \
+            --xml testing-microservice/reports/weather-staging-results.xml \
+            --service weather \
+            --env staging \
+            --out testing-microservice/reports/weather-staging-report.txt
+
+      - name: Upload weather staging test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: weather-staging-test-report
+          path: |
+            testing-microservice/reports/weather-staging-results.xml
+            testing-microservice/reports/weather-staging-report.txt
