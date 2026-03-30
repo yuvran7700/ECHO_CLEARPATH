@@ -20,29 +20,19 @@ def format_db_adage(record: dict, date):
                     "sunshineHours_hours": record["sunshineHours_hours"],
                     "maxWindSpeed_kmh": record["maxWindSpeed_kmh"],
                     "9am": {
-                        "temp_C": record["9am"]["temp_C"],
-                        "humidity_percent": record["9am"]["humidity_percent"],
+                        "temp_C": record["9am_temp_C"],
+                        "humidity_percent": record["9am_humidity_percent"],
                     },
                     "3pm": {
-                        "temp_C": record["3pm"]["temp_C"],
-                        "humidity_percent": record["3pm"]["humidity_percent"],
+                        "temp_C": record["3pm_temp_C"],
+                        "humidity_percent": record["3pm_humidity_percent"],
                     },
                     "weatherSeverity": {
-                        "sunSeverity": record["weatherSeverity"][
-                            "sunSeverity"
-                        ],
-                        "rainSeverity": record["weatherSeverity"][
-                            "rainSeverity"
-                        ],
-                        "tempSeverity": record["weatherSeverity"][
-                            "tempSeverity"
-                        ],
-                        "windSeverity": record["weatherSeverity"][
-                            "windSeverity"
-                        ],
-                        "humiditySeverity": record["weatherSeverity"][
-                            "humiditySeverity"
-                        ],
+                        "sunSeverity": record["sunSeverity"],
+                        "rainSeverity": record["rainSeverity"],
+                        "tempSeverity": record["tempSeverity"],
+                        "windSeverity": record["windSeverity"],
+                        "humiditySeverity": record["humiditySeverity"],
                     },
                 },
             }
