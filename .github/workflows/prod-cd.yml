@@ -9,6 +9,7 @@ on:
       - "alert-microservice/**"
       - "testing-microservice/**"
       -  ".github/workflows/**"
+  workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -59,6 +60,7 @@ jobs:
             --junitxml=reports/weather-prod-results.xml
 
       - name: Generate weather prod report
+        if: always()
         run: |
           cd testing-microservice && python generate_report.py \
             --xml reports/weather-prod-results.xml \
@@ -120,6 +122,7 @@ jobs:
             --junitxml=reports/alert-prod-results.xml
 
       - name: Generate alert prod report
+        if: always()
         run: |
           cd testing-microservice && python generate_report.py \
             --xml reports/alert-prod-results.xml \
