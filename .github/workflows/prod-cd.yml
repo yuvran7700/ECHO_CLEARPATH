@@ -51,19 +51,19 @@ jobs:
       - name: Create reports directory
         run: mkdir -p testing-microservice/reports
 
-      - name: Run weather prod tests
+      - name: Run weather smoke tests
         run: |
-          pytest testing-microservice/tests/weather/smoke \
+          cd testing-microservice && pytest tests/weather/smoke \
             --env prod \
-            --junitxml=testing-microservice/reports/weather-prod-results.xml
+            --junitxml=reports/weather-prod-results.xml
 
       - name: Generate weather prod report
         run: |
-          python testing-microservice/generate_report.py \
-            --xml testing-microservice/reports/weather-prod-results.xml \
+          cd testing-microservice && python generate_report.py \
+            --xml reports/weather-prod-results.xml \
             --service weather \
             --env prod \
-            --out testing-microservice/reports/weather-prod-report.txt
+            --out reports/weather-prod-report.txt
 
       - name: Upload weather prod test artifacts
         uses: actions/upload-artifact@v4
@@ -112,19 +112,19 @@ jobs:
       - name: Create reports directory
         run: mkdir -p testing-microservice/reports
 
-      - name: Run alert prod tests
+      - name: Run alert smoke tests
         run: |
-          pytest testing-microservice/tests/alert/smoke \
+          cd testing-microservice && pytest tests/alert/smoke \
             --env prod \
-            --junitxml=testing-microservice/reports/alert-prod-results.xml
+            --junitxml=reports/alert-prod-results.xml
 
       - name: Generate alert prod report
         run: |
-          python testing-microservice/generate_report.py \
-            --xml testing-microservice/reports/alert-prod-results.xml \
+          cd testing-microservice && python generate_report.py \
+            --xml reports/alert-prod-results.xml \
             --service alert \
             --env prod \
-            --out testing-microservice/reports/alert-prod-report.txt
+            --out reports/alert-prod-report.txt
 
       - name: Upload alert prod test artifacts
         uses: actions/upload-artifact@v4
