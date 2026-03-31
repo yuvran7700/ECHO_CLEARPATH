@@ -1,9 +1,10 @@
-import requests
+# Component tests for GET /alert/collection (Staging).
+#
+# Verifies the full request/response cycle against the deployed staging
+# endpoint — covering successful responses, missing parameters, invalid
+# dates, and invalid base query formats.
 
-"""
-This test file checks for all the cases
-that should trigger a bad request
-"""
+import requests
 
 BASE_URL = "https://18dydsthbi.execute-api.us-east-1.amazonaws.com"
 
