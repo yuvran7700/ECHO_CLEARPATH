@@ -57,9 +57,7 @@ def test_alert_collection_response_has_correct_content_type():
 
 
 # ─── MISSING PARAMETERS ──────────────────────────────────────────────────
-
-
-def test_alert_collection_missing_request_pramas_returns_400():
+def test_alert_collection_missing_all_params_returns_400():
     response = requests.get(f"{BASE_URL}/alert/collection", params={})
 
     assert response.status_code == 400
