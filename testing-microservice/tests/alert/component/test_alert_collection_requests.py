@@ -1,3 +1,5 @@
+import requests
+
 """
 This test file checks for all the cases
 that should trigger a bad request
@@ -9,6 +11,14 @@ BASE_URL = "https://18dydsthbi.execute-api.us-east-1.amazonaws.com"
 
 
 def test_alert_collection_missing_request_pramas_returns_400():
+    response = requests.get(f"{BASE_URL}/alert/collection", params={})
+
+    assert response.status_code == 400
+    assert (
+        response.json()["message"]
+        == "base_query, start_date, and end_date are required"
+    )
+
     return
 
 
