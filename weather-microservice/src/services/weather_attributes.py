@@ -44,21 +44,17 @@ def process_collected_s3_object(key: str, eTag: str):
         "rainfall_mm": dynamodb_converter(rainfall_mm),
         "sunshineHours_hours": dynamodb_converter(sunshineHours_hours),
         "maxWindSpeed_kmh": dynamodb_converter(maxWindSpeed_kmh),
-        "9am": {
-            "temp_C": dynamodb_converter(amTemp_C),
-            "humidity_percent": dynamodb_converter(amHumidity_percent),
-        },
-        "3pm": {
-            "temp_C": dynamodb_converter(pmTemp_C),
-            "humidity_percent": dynamodb_converter(pmHumidity_percent),
-        },
-        "weatherSeverity": {
-            "tempSeverity": str(temp_severity),
-            "rainSeverity": str(rain_severity),
-            "sunSeverity": str(sunshine_severity),
-            "windSeverity": str(wind_severity),
-            "humiditySeverity": str(humidity_severity),
-        },
+        # Flattened 9am / 3pm attributes
+        "9am_temp_C": dynamodb_converter(amTemp_C),
+        "9am_humidity_percent": dynamodb_converter(amHumidity_percent),
+        "3pm_temp_C": dynamodb_converter(pmTemp_C),
+        "3pm_humidity_percent": dynamodb_converter(pmHumidity_percent),
+        # Flattened severity attributes
+        "tempSeverity": str(temp_severity),
+        "rainSeverity": str(rain_severity),
+        "sunSeverity": str(sunshine_severity),
+        "windSeverity": str(wind_severity),
+        "humiditySeverity": str(humidity_severity),
     }
 
     put_record(Item)
