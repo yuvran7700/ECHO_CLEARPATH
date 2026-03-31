@@ -7,6 +7,54 @@ that should trigger a bad request
 
 BASE_URL = "https://18dydsthbi.execute-api.us-east-1.amazonaws.com"
 
+VALID_PARAMS = {
+    "base_query": "(from:T1SydneyTrains)",
+    "start_date": "2026-03-01",
+    "end_date": "2026-03-07",
+}
+
+# ─── 200 SUCCESS ─────────────────────────────────────────────────────────
+
+
+def test_alert_collection_valid_request_returns_200():
+    response = requests.get(
+        f"{BASE_URL}/alert/collection",
+        params=VALID_PARAMS,
+    )
+
+    assert response.status_code == 200
+
+
+def test_alert_collection_response_has_body():
+    response = requests.get(
+        f"{BASE_URL}/alert/collection",
+        params=VALID_PARAMS,
+    )
+
+    body = response.json()
+    assert body is not None
+    assert len(body) > 0
+
+
+def test_alert_collection_response_contains_events():
+    response = requests.get(
+        f"{BASE_URL}/alert/collection",
+        params=VALID_PARAMS,
+    )
+
+    assert "events" in response.json()
+    assert isinstance(response.json()["events"], list)
+
+
+def test_alert_collection_response_has_correct_content_type():
+    response = requests.get(
+        f"{BASE_URL}/alert/collection",
+        params=VALID_PARAMS,
+    )
+
+    assert response.headers["Content-Type"] == "application/json"
+
+
 # ─── MISSING PARAMETERS ──────────────────────────────────────────────────
 
 
@@ -137,18 +185,3 @@ def test_alert_collection_base_query_missing_from_filter_message_returns_400():
         response.json()["message"]
         == "base_query must include 'from:account_name' filter"
     )
-
-
-# ─── 503 SERVICE UNAVAILABLE ─────────────────────────────────────────────
-
-
-def test_alert_collection_large_date_range_returns_503():
-    return
-
-
-def test_alert_collection_service_unavailable_contains_message_field():
-    return
-
-
-def test_alert_collection_service_unavailable_message_returns_503():
-    return
