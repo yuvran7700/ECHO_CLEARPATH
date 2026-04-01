@@ -1,8 +1,9 @@
 import os
 
+import pytest
 import requests
+from jsonschema import ValidationError
 from openapi_schema_validator import OAS30Validator, validate
-from openapi_schema_validator.exceptions import OpenAPIValidationError
 from schemas.adage_tweet_dataset_schema import ADAGE_TWEET_DATASET_SCHEMA
 
 BASE_URL = os.getenv("BASE_STAGING_URL")
@@ -28,5 +29,11 @@ def test_create_alert_contract():
             schema=ADAGE_TWEET_DATASET_SCHEMA,
             cls=OAS30Validator,
         )
-    except OpenAPIValidationError as e:
-        print(f"Validation failed: {e.message}")
+    except ValidationError as e:
+        path = " -> ".join(str(p) for p in e.absolute_path) or "<root>"
+        pytest.fail(
+            f"Schema validation failed:\n"
+            f"  path   : {path}\n"
+            f"  message: {e.message}\n"
+            f"  value  : {e.instance!r}"
+        )
