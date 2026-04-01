@@ -10,15 +10,9 @@ from openapi_schema_validator import OAS30Validator, validate
 
 from .schemas.adage_tweet_dataset_schema import ADAGE_TWEET_DATASET_SCHEMA
 
-VALID_PARAMS = {
-    "base_query": "(from:T1SydneyTrains)",
-    "start_date": "2026-03-01",
-    "end_date": "2026-03-07",
-}
-
 
 def test_alert_collection_response_matches_adage_tweet_dataset_schema(
-    alert_collection_url,
+    alert_collection_url, valid_alert_params
 ):
     """
     Verify the GET /alert/collection response structure matches the ADAGE
@@ -26,7 +20,7 @@ def test_alert_collection_response_matches_adage_tweet_dataset_schema(
     """
     response = requests.get(
         alert_collection_url,
-        params=VALID_PARAMS,
+        valid_alert_params,
     )
 
     assert response.status_code == 200
