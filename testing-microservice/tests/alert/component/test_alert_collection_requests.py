@@ -6,15 +6,8 @@
 
 import requests
 
-VALID_PARAMS = {
-    "base_query": "(from:T1SydneyTrains)",
-    "start_date": "2026-03-01",
-    "end_date": "2026-03-07",
-}
 
 # ─── 200 SUCCESS ─────────────────────────────────────────────────────────
-
-
 def test_alert_collection_valid_request_returns_200(
     alert_collection_url, valid_alert_params
 ):
