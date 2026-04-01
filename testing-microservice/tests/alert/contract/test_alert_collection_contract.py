@@ -3,19 +3,14 @@
 # Validates the response body against the ADAGE 3.0 Tweet Dataset schema
 # using OpenAPI 3.0 structural validation.
 
-import os
-
 import pytest
 import requests
-from dotenv import load_dotenv
 from jsonschema import ValidationError
 from openapi_schema_validator import OAS30Validator, validate
 
 from .schemas.adage_tweet_dataset_schema import ADAGE_TWEET_DATASET_SCHEMA
 
-load_dotenv()
-
-BASE_URL = os.getenv("BASE_STAGING_URL")
+BASE_URL = "https://18dydsthbi.execute-api.us-east-1.amazonaws.com"
 
 VALID_PARAMS = {
     "base_query": "(from:T1SydneyTrains)",
