@@ -15,19 +15,23 @@ VALID_PARAMS = {
 # ─── 200 SUCCESS ─────────────────────────────────────────────────────────
 
 
-def test_alert_collection_valid_request_returns_200(alert_collection_url):
+def test_alert_collection_valid_request_returns_200(
+    alert_collection_url, valid_alert_params
+):
     response = requests.get(
         alert_collection_url,
-        params=VALID_PARAMS,
+        valid_alert_params,
     )
 
     assert response.status_code == 200
 
 
-def test_alert_collection_response_has_body(alert_collection_url):
+def test_alert_collection_response_has_body(
+    alert_collection_url, valid_alert_params
+):
     response = requests.get(
         alert_collection_url,
-        params=VALID_PARAMS,
+        valid_alert_params,
     )
 
     body = response.json()
@@ -35,10 +39,12 @@ def test_alert_collection_response_has_body(alert_collection_url):
     assert len(body) > 0
 
 
-def test_alert_collection_response_contains_events(alert_collection_url):
+def test_alert_collection_response_contains_events(
+    alert_collection_url, valid_alert_params
+):
     response = requests.get(
         alert_collection_url,
-        params=VALID_PARAMS,
+        valid_alert_params,
     )
 
     assert "events" in response.json()
@@ -46,11 +52,11 @@ def test_alert_collection_response_contains_events(alert_collection_url):
 
 
 def test_alert_collection_response_has_correct_content_type(
-    alert_collection_url,
+    alert_collection_url, valid_alert_params
 ):
     response = requests.get(
         alert_collection_url,
-        params=VALID_PARAMS,
+        valid_alert_params,
     )
 
     assert response.headers["Content-Type"] == "application/json"

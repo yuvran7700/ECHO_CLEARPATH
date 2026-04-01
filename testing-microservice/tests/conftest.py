@@ -63,3 +63,12 @@ def s3_bucket_name(env):
     if env == "staging":
         return "clearpath-weather-index-v1-staging"
     return "clearpath-weather-index-v1-prod"
+
+
+@pytest.fixture(scope="session")
+def valid_alert_params():
+    return {
+        "base_query": "(from:T1SydneyTrains)",
+        "start_date": "2026-03-01",
+        "end_date": "2026-03-07",
+    }
