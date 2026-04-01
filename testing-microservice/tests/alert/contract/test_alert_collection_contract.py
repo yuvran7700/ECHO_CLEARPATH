@@ -2,9 +2,13 @@ import os
 
 import pytest
 import requests
+from dotenv import load_dotenv
 from jsonschema import ValidationError
 from openapi_schema_validator import OAS30Validator, validate
-from schemas.adage_tweet_dataset_schema import ADAGE_TWEET_DATASET_SCHEMA
+
+from .schemas.adage_tweet_dataset_schema import ADAGE_TWEET_DATASET_SCHEMA
+
+load_dotenv()
 
 BASE_URL = os.getenv("BASE_STAGING_URL")
 
@@ -15,7 +19,7 @@ VALID_PARAMS = {
 }
 
 
-def test_create_alert_contract():
+def test_alert_collection_response_matches_adage_tweet_dataset_schema():
     response = requests.get(
         f"{BASE_URL}/alert/collection",
         params=VALID_PARAMS,
