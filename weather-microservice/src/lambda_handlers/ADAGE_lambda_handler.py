@@ -21,7 +21,9 @@ def ADAGE_lambda_handler(event, context):
     except ValueError:
         return {
             "statusCode": 400,
-            "body": json.dumps({"error": "Invalid date format"}),
+            "body": json.dumps(
+                {"error": "Invalid date format - Expected YYYY-MM-DD"}
+            ),
         }
 
     try:

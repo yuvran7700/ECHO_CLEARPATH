@@ -1,14 +1,18 @@
-name: Alert CD
+name: Alert CD Staging
 
 on:
   push:
     branches:
-      - "main"
+      - "develop/alert-microservice"
     paths:
       - "alert-microservice/**"
+      - "testing-microservice/**"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  deploy:
+  deploy-staging:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,14 +33,41 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Deploy shared clearpath-api stack
-        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
-        working-directory: .
-
       - name: SAM Build
         run: sam build
         working-directory: alert-microservice
 
-      - name: SAM Deploy
-        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
+      - name: SAM Deploy Staging
+        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --config-env staging
         working-directory: alert-microservice
+
+      - name: Install testing dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r testing-microservice/requirements.txt
+
+      - name: Create reports directory
+        run: mkdir -p testing-microservice/reports
+
+      - name: Run alert staging tests
+        run: |
+          pytest testing-microservice/tests/alert \
+            --env staging \
+            --junitxml=testing-microservice/reports/alert-staging-results.xml
+
+      - name: Generate alert staging report
+        run: |
+          python testing-microservice/generate_report.py \
+            --xml testing-microservice/reports/alert-staging-results.xml \
+            --service alert \
+            --env staging \
+            --out testing-microservice/reports/alert-staging-report.txt
+
+      - name: Upload alert staging test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: alert-staging-test-report
+          path: |
+            testing-microservice/reports/alert-staging-results.xml
+            testing-microservice/reports/alert-staging-report.txt
