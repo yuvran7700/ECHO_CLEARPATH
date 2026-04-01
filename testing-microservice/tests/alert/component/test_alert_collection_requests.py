@@ -6,8 +6,6 @@
 
 import requests
 
-BASE_URL = "https://18dydsthbi.execute-api.us-east-1.amazonaws.com"
-
 VALID_PARAMS = {
     "base_query": "(from:T1SydneyTrains)",
     "start_date": "2026-03-01",
@@ -17,18 +15,18 @@ VALID_PARAMS = {
 # ─── 200 SUCCESS ─────────────────────────────────────────────────────────
 
 
-def test_alert_collection_valid_request_returns_200():
+def test_alert_collection_valid_request_returns_200(alert_collection_url):
     response = requests.get(
-        f"{BASE_URL}/alert/collection",
+        alert_collection_url,
         params=VALID_PARAMS,
     )
 
     assert response.status_code == 200
 
 
-def test_alert_collection_response_has_body():
+def test_alert_collection_response_has_body(alert_collection_url):
     response = requests.get(
-        f"{BASE_URL}/alert/collection",
+        alert_collection_url,
         params=VALID_PARAMS,
     )
 
@@ -37,9 +35,9 @@ def test_alert_collection_response_has_body():
     assert len(body) > 0
 
 
-def test_alert_collection_response_contains_events():
+def test_alert_collection_response_contains_events(alert_collection_url):
     response = requests.get(
-        f"{BASE_URL}/alert/collection",
+        alert_collection_url,
         params=VALID_PARAMS,
     )
 
@@ -47,9 +45,11 @@ def test_alert_collection_response_contains_events():
     assert isinstance(response.json()["events"], list)
 
 
-def test_alert_collection_response_has_correct_content_type():
+def test_alert_collection_response_has_correct_content_type(
+    alert_collection_url,
+):
     response = requests.get(
-        f"{BASE_URL}/alert/collection",
+        alert_collection_url,
         params=VALID_PARAMS,
     )
 
@@ -57,8 +57,8 @@ def test_alert_collection_response_has_correct_content_type():
 
 
 # ─── MISSING PARAMETERS ──────────────────────────────────────────────────
-def test_alert_collection_missing_all_params_returns_400():
-    response = requests.get(f"{BASE_URL}/alert/collection", params={})
+def test_alert_collection_missing_all_params_returns_400(alert_collection_url):
+    response = requests.get(alert_collection_url, params={})
 
     assert response.status_code == 400
     assert (
@@ -67,9 +67,9 @@ def test_alert_collection_missing_all_params_returns_400():
     )
 
 
-def test_alert_collection_missing_start_date_returns_400():
+def test_alert_collection_missing_start_date_returns_400(alert_collection_url):
     response = requests.get(
-        f"{BASE_URL}/alert/collection",
+        alert_collection_url,
         params={
             "base_query": "(from:T1SydneyTrains)",
             "end_date": "2026-03-23",
@@ -83,9 +83,9 @@ def test_alert_collection_missing_start_date_returns_400():
     )
 
 
-def test_alert_collection_missing_end_date_returns_400():
+def test_alert_collection_missing_end_date_returns_400(alert_collection_url):
     response = requests.get(
-        f"{BASE_URL}/alert/collection",
+        alert_collection_url,
         params={
             "base_query": "(from:T1SydneyTrains)",
             "start_date": "2026-03-23",
@@ -99,9 +99,9 @@ def test_alert_collection_missing_end_date_returns_400():
     )
 
 
-def test_alert_collection_missing_base_query_returns_400():
+def test_alert_collection_missing_base_query_returns_400(alert_collection_url):
     response = requests.get(
-        f"{BASE_URL}/alert/collection",
+        alert_collection_url,
         params={
             "start_date": "2026-03-01",
             "end_date": "2026-03-23",
@@ -118,9 +118,9 @@ def test_alert_collection_missing_base_query_returns_400():
 # ─── INVALID DATE QUERY ──────────────────────────────────────────────────
 
 
-def test_alert_collection_invalid_date_range_returns_400():
+def test_alert_collection_invalid_date_range_returns_400(alert_collection_url):
     response = requests.get(
-        f"{BASE_URL}/alert/collection",
+        alert_collection_url,
         params={
             "base_query": "(from:T1SydneyTrains)",
             "start_date": "2026-03-23",
@@ -135,9 +135,11 @@ def test_alert_collection_invalid_date_range_returns_400():
     )
 
 
-def test_alert_collection_invalid_date_format_returns_400():
+def test_alert_collection_invalid_date_format_returns_400(
+    alert_collection_url,
+):
     response = requests.get(
-        f"{BASE_URL}/alert/collection",
+        alert_collection_url,
         params={
             "base_query": "(from:T1SydneyTrains)",
             "start_date": "23-03-2026",
@@ -152,9 +154,11 @@ def test_alert_collection_invalid_date_format_returns_400():
 # ─── INVALID BASE QUERY ──────────────────────────────────────────────────
 
 
-def test_alert_collection_base_query_without_from_prefix_returns_400():
+def test_alert_collection_base_query_without_from_prefix_returns_400(
+    alert_collection_url,
+):
     response = requests.get(
-        f"{BASE_URL}/alert/collection",
+        alert_collection_url,
         params={
             "base_query": "T1SydneyTrains",
             "start_date": "2026-03-01",
@@ -169,9 +173,11 @@ def test_alert_collection_base_query_without_from_prefix_returns_400():
     )
 
 
-def test_alert_collection_base_query_missing_from_filter_message_returns_400():
+def test_alert_collection_base_query_missing_from_filter_message_returns_400(
+    alert_collection_url,
+):
     response = requests.get(
-        f"{BASE_URL}/alert/collection",
+        alert_collection_url,
         params={
             "base_query": "(delay OR disruption)",
             "start_date": "2026-03-01",
