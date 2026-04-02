@@ -2,10 +2,7 @@
 import requests
 
 
-<<<<<<< develop/weather-microservice
 # ─── 200 SUCCESS ─────────────────────────────────────────────────────────
-=======
->>>>>>> main
 def test_weather_preprocessed_returns_200(weather_preprocessed_url):
     response = requests.get(
         weather_preprocessed_url, params={"date": "2026-03-18"}
@@ -13,7 +10,6 @@ def test_weather_preprocessed_returns_200(weather_preprocessed_url):
     assert response.status_code == 200
 
 
-<<<<<<< develop/weather-microservice
 def test_weather_preprocessed_has_body(weather_preprocessed_url):
     response = requests.get(
         weather_preprocessed_url, params={"date": "2026-03-18"}
@@ -84,8 +80,3 @@ def test_weather_preprocessed_record_missing(weather_preprocessed_url):
     assert response.status_code == 404
     body = response.json()
     assert body["error"] == "Record not found"
-=======
-def test_weather_preprocessed_missing_date(weather_preprocessed_url):
-    response = requests.get(weather_preprocessed_url)
-    assert response.status_code == 400
->>>>>>> main
