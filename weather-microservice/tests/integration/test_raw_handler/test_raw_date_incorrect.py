@@ -21,7 +21,7 @@ def test_raw_date_incorrect():
     file_path = (
         Path(__file__).resolve().parent.parent.parent
         / "test_data"
-        / "12-3999-no-date.csv"
+        / "12-3999-date-incorrect.csv"
     )
 
     with open(file_path, "r", encoding="utf-8-sig") as f:
