@@ -3,7 +3,10 @@ boto3
 requests
 pytest-cov
 coverage
+<<<<<<< develop/weather-microservice
 openapi_schema_validator
 jsonschema==4.26.0
 jsonschema-specifications==2025.9.1
 openapi-schema-validator==0.8.1
+=======
+>>>>>>> main
