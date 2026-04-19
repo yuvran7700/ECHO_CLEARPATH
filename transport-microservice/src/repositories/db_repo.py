@@ -9,8 +9,13 @@ such as alert_table or weather_table.
 from typing import Any
 
 
-def get_record(table, date: str) -> dict[str, Any] | None:
-    response = table.get_item(Key={"date": date})
+def get_record(
+    table, date: str, location: str | None = None
+) -> dict[str, Any] | None:
+    key = {"date": date}
+    if location:
+        key["location"] = location
+    response = table.get_item(Key=key)
     return response.get("Item")
 
 
@@ -18,9 +23,15 @@ def put_record(table, record: dict[str, Any]) -> None:
     table.put_item(Item=record)
 
 
-def update_record(table, date: str, updates: dict[str, Any]) -> None:
+def update_record(
+    table, date: str, updates: dict[str, Any], location: str | None = None
+) -> None:
     if not updates:
         raise ValueError("updates cannot be empty")
+
+    key = {"date": date}
+    if location:
+        key["location"] = location
 
     update_expression = "SET " + ", ".join(
         f"#k{i} = :v{i}" for i in range(len(updates))
@@ -31,15 +42,18 @@ def update_record(table, date: str, updates: dict[str, Any]) -> None:
     }
 
     table.update_item(
-        Key={"date": date},
+        Key=key,
         UpdateExpression=update_expression,
         ExpressionAttributeNames=expression_names,
         ExpressionAttributeValues=expression_values,
     )
 
 
-def delete_record(table, date: str) -> None:
-    table.delete_item(Key={"date": date})
+def delete_record(table, date: str, location: str | None = None) -> None:
+    key = {"date": date}
+    if location:
+        key["location"] = location
+    table.delete_item(Key=key)
 
 
 def scan_all_items(table) -> list[dict[str, Any]]:

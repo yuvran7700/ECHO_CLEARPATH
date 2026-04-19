@@ -1,8 +1,8 @@
 """
 transport-microservice/src/services/join_service.py
-Join weather and alert DynamoDB tables on date using a LEFT JOIN
-(weather as the base table), then save the result into the
-clearpath-weather-alert-joined table.
+Join weather-location and alert DynamoDB tables on date using a LEFT JOIN
+(weather-location as the base table), then save the result into the
+clearpath-weather-alert-joined table with composite PK (date + location).
 """
 
 import logging
@@ -11,7 +11,7 @@ from typing import Any
 from src.dependencies.db_client import (
     alert_table,
     joined_table,
-    weather_table,
+    weather_location_table,
 )
 from src.repositories.db_repo import (
     batch_write_items,
@@ -45,25 +45,28 @@ def build_joined_item(
 
 def run_join() -> None:
     """
-    Execute the full LEFT JOIN from weather to alerts and store the result
-    in the joined DynamoDB table.
+    Execute the full LEFT JOIN from weather-location to alerts and store
+    the result in the joined DynamoDB table.
     """
     logger.info("Join job started")
 
     try:
-        # Step 1: Scan weather table
-        weather_items = scan_all_items(weather_table)
+        # Step 1: Scan weather location table (has both sydney + parramatta)
+        weather_items = scan_all_items(weather_location_table)
         logger.info(
-            "Weather scan complete", extra={"row_count": len(weather_items)}
+            f"Weather location scan complete: {len(weather_items)} rows"
         )
 
         joined_items: list[dict[str, Any]] = []
         matched_alert_count = 0
         unmatched_weather_count = 0
 
-        # Step 2: Perform LEFT JOIN
+        # Step 2: LEFT JOIN — for each weather record, look up alert by date
+        # Alerts apply to the whole T1 line regardless of location
         for weather_item in weather_items:
             date = weather_item.get("date")
+            location = weather_item.get("location")
+
             alert_item = get_record(alert_table, date)
 
             if alert_item:
@@ -74,26 +77,25 @@ def run_join() -> None:
             joined_item = build_joined_item(weather_item, alert_item)
             joined_items.append(joined_item)
 
+            logger.info(
+                f"Joined {date} ({location}) — "
+                f"disruption={joined_item['disruption']}"
+            )
+
         logger.info(
-            "Join build phase complete",
-            extra={
-                "joined_rows": len(joined_items),
-                "matched_alerts": matched_alert_count,
-                "weather_only_rows": unmatched_weather_count,
-            },
+            f"Join complete — {len(joined_items)} rows, "
+            f"{matched_alert_count} matched alerts, "
+            f"{unmatched_weather_count} unmatched"
         )
 
-        # Step 3: Write results
+        # Step 3: Write results — composite PK is date + location
         batch_write_items(
             joined_table,
             joined_items,
-            overwrite_by_pkeys=["date"],
+            overwrite_by_pkeys=["date", "location"],
         )
 
-        logger.info(
-            "Join job completed successfully",
-            extra={"rows_written": len(joined_items)},
-        )
+        logger.info(f"Join job completed — {len(joined_items)} rows written")
 
     except Exception:
         logger.exception("Join job failed")

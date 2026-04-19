@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 AWS_REGION = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
-WEATHER_DB = "clearpath-weather-data"
+WEATHER_LOCATION_DB = "clearpath-weather-location-data"
 ALERT_DB = "clearpath-alert-data"
 JOINED_DB = "clearpath-weather-alert-joined"
 
@@ -19,15 +19,13 @@ JOINED_DB = "clearpath-weather-alert-joined"
 dynamodb = boto3.resource("dynamodb", region_name=AWS_REGION)
 
 # Reference your table
-weather_table = dynamodb.Table(WEATHER_DB)
 alert_table = dynamodb.Table(ALERT_DB)
 joined_table = dynamodb.Table(JOINED_DB)
+weather_location_table = dynamodb.Table(WEATHER_LOCATION_DB)
 
 
 def check_table_status() -> bool:
     try:
-        _ = weather_table.table_status
-        print(f"DynamoDB connected: {WEATHER_DB}")
         _ = alert_table.table_status
         print(f"DynamoDB connected: {ALERT_DB}")
         _ = joined_table.table_status
