@@ -44,7 +44,7 @@ def collection_lambda_handler(event, context):
         eTag = str(record["s3"]["object"]["eTag"])
         existing = get_record(date)
         if existing is None:
-            logger.error("Record does not exist, creating now")
+            logger.info("Record does not exist, creating now")
             process_collected_s3_object(key, eTag)
             continue
 
@@ -56,5 +56,5 @@ def collection_lambda_handler(event, context):
             continue
 
         if eTag != existing["eTag"]:
-            logger.error("Updating record")
+            logger.info("Updating record")
             process_collected_s3_object(key, eTag)

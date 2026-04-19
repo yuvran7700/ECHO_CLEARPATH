@@ -60,11 +60,7 @@ pre-commit run --files weather-microservice/app.py
 pre-commit run --files weather-microservice/app.py weather-microservice/utils.py
 
 # Entire folder
-<<<<<<< HEAD
 pre-commit run --files weather-microservice/**/*
-=======
-pre-commit run --files alert-microservice/**/*
->>>>>>> main
 ```
 ---
 

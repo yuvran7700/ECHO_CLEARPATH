@@ -28,4 +28,7 @@ def test_ADAGE_incorrect_date():
 
     assert result["statusCode"] == 400
     assert result["body"] is not None
-    assert result["body"] == '{"error": "Invalid date format"}'
+    assert (
+        result["body"]
+        == '{"error": "Invalid date format - Expected YYYY-MM-DD"}'
+    )

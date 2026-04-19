@@ -1,0 +1,9 @@
+pytest
+boto3
+requests
+pytest-cov
+coverage
+openapi_schema_validator
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+openapi-schema-validator==0.8.1
