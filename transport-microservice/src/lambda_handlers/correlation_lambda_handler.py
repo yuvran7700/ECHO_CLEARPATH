@@ -5,16 +5,14 @@ from src.services.disruption_forecast_service import (
 )
 
 
-# correlation_lambda_handler.py - ONLY HTTP concerns
 def correlation_lambda_handler(event, context):
     try:
         query_params = event.get("queryStringParameters") or {}
-        lat = float(query_params.get("lat", -33.8688))
-        lon = float(query_params.get("lon", 151.2093))
+        lat = float(query_params.get("lat", -33.8150))
+        lon = float(query_params.get("lon", 151.0011))
+        location = query_params.get("location", "parramatta")
 
-        result = generate_5_day_risk_forecast(
-            lat, lon
-        )  # facade does everything
+        result = generate_5_day_risk_forecast(lat, lon, location=location)
 
         return {
             "statusCode": 200,
