@@ -11,9 +11,9 @@ Parameters:
   ApiId:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /clearpath/staging/api-id
-  WeatherTableStreamArn:
+  WeatherLocationTableStreamArn:
     Type: AWS::SSM::Parameter::Value<String>
-    Default: /clearpath/staging/weather-table-stream-arn
+    Default: /clearpath/staging/weather-location-table-stream-arn
   AlertTableStreamArn:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /clearpath/staging/alert-table-stream-arn
@@ -22,11 +22,11 @@ Mappings:
   EnvConfig:
     staging:
       JoinedTableName: clearpath-weather-alert-joined-staging
-      WeatherTableName: clearpath-weather-data-staging
+      WeatherLocationTableName: clearpath-weather-location-data-staging
       AlertTableName: clearpath-alert-data-staging
     prod:
       JoinedTableName: clearpath-weather-alert-joined
-      WeatherTableName: clearpath-weather-data
+      WeatherLocationTableName: clearpath-weather-location-data
       AlertTableName: clearpath-alert-data
 
 Globals:
@@ -39,7 +39,7 @@ Globals:
       Variables:
         ENVIRONMENT: !Ref Environment
         JOINED_TABLE_NAME: !FindInMap [EnvConfig, !Ref Environment, JoinedTableName]
-        WEATHER_TABLE_NAME: !FindInMap [EnvConfig, !Ref Environment, WeatherTableName]
+        WEATHER_LOCATION_TABLE_NAME: !FindInMap [EnvConfig, !Ref Environment, WeatherLocationTableName]
         ALERT_TABLE_NAME: !FindInMap [EnvConfig, !Ref Environment, AlertTableName]
         GOOGLE_WEATHER_API_KEY: !Sub "{{resolve:ssm:/clearpath/${Environment}/google-weather-api-key}}"
 
@@ -54,10 +54,10 @@ Resources:
       Policies:
         - AmazonDynamoDBFullAccess
       Events:
-        WeatherTableStream:
+        WeatherLocationTableStream:
           Type: DynamoDB
           Properties:
-            Stream: !Ref WeatherTableStreamArn
+            Stream: !Ref WeatherLocationTableStreamArn
             StartingPosition: LATEST
             BatchSize: 1
         AlertTableStream:
@@ -99,7 +99,42 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub "arn:aws:execute-api:us-east-1:102882775486:${ApiId}/*/*/transport/disruption-forecast"
 
+  # ---- Analytics Lambda ----
+  AnalyticsLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "analytics-lambda-${Environment}"
+      Handler: src.lambda_handlers.analytics_lambda_handler.analytics_lambda_handler
+      Policies:
+        - AmazonDynamoDBFullAccess
+
+  AnalyticsIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ApiId
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt AnalyticsLambda.Arn
+      PayloadFormatVersion: "2.0"
+
+  AnalyticsRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ApiId
+      RouteKey: "GET /transport/disruption-analytics"
+      Target: !Sub "integrations/${AnalyticsIntegration}"
+
+  AnalyticsPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt AnalyticsLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:us-east-1:102882775486:${ApiId}/*/*/transport/disruption-analytics"
+
 Outputs:
   DisruptionForecastEndpoint:
     Description: Transport disruption forecast endpoint
     Value: !Sub "https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/transport/disruption-forecast"
+  DisruptionAnalyticsEndpoint:
+    Description: Transport disruption analytics endpoint
+    Value: !Sub "https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/transport/disruption-analytics"

@@ -10,7 +10,7 @@ capabilities = "CAPABILITY_IAM"
 resolve_s3 = true
 s3_prefix = "transport-microservice-staging"
 confirm_changeset = false
-parameter_overrides = "Environment=staging ApiId=/clearpath/staging/api-id WeatherTableStreamArn=/clearpath/staging/weather-table-stream-arn AlertTableStreamArn=/clearpath/staging/alert-table-stream-arn"
+parameter_overrides = "Environment=staging ApiId=/clearpath/staging/api-id WeatherLocationTableStreamArn=/clearpath/staging/weather-location-table-stream-arn AlertTableStreamArn=/clearpath/staging/alert-table-stream-arn"
 image_repositories = []
 
 [prod.global.parameters]
@@ -23,5 +23,5 @@ capabilities = "CAPABILITY_IAM"
 resolve_s3 = true
 s3_prefix = "transport-microservice-prod"
 confirm_changeset = true
-parameter_overrides = "Environment=prod ApiId=/clearpath/prod/api-id WeatherTableStreamArn=/clearpath/prod/weather-table-stream-arn AlertTableStreamArn=/clearpath/prod/alert-table-stream-arn"
+parameter_overrides = "Environment=prod ApiId=/clearpath/prod/api-id WeatherLocationTableStreamArn=/clearpath/prod/weather-location-table-stream-arn AlertTableStreamArn=/clearpath/prod/alert-table-stream-arn"
 image_repositories = []
