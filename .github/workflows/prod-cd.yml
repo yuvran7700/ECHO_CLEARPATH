@@ -7,6 +7,7 @@ on:
     paths:
       - "weather-microservice/**"
       - "alert-microservice/**"
+      - "transport-microservice/**"
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -70,3 +71,33 @@ jobs:
       - name: SAM Deploy Prod
         run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --config-env prod
         working-directory: alert-microservice
+
+  deploy-transport-prod:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up SAM
+        uses: aws-actions/setup-sam@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: SAM Build
+        run: sam build
+        working-directory: transport-microservice
+
+      - name: SAM Deploy Prod
+        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --config-env prod
+        working-directory: transport-microservice

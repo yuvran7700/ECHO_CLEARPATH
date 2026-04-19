@@ -1,4 +1,4 @@
-name: transport CI
+name: Transport CI
 
 on:
   pull_request:
@@ -24,10 +24,18 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install -r transport-microservice/requirements.txt
           pip install -r requirements-dev.txt
 
-      # 1. LINTING
-      - name: Run Global Linting
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      # 1. LINTING + FORMATTING CHECK
+      - name: Run Ruff
         run: |
           ruff format --check transport-microservice/
           ruff check transport-microservice/
@@ -36,20 +44,22 @@ jobs:
       - name: Run unit tests
         run: pytest transport-microservice/tests/unit/
 
-      # 2. INTEGRATION TESTING
+      # 3. INTEGRATION TESTING
       - name: Run integration tests
         run: pytest transport-microservice/tests/integration/
-        continue-on-error: true
 
-      # COVERAGE TESTING
+      # 4. COVERAGE TESTING
       - name: Run coverage
         run: |
           coverage run -m pytest transport-microservice/tests/
           coverage report
-          coverage html
+          coverage xml -o transport-microservice/coverage.xml
+          coverage html -d transport-microservice/htmlcov
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
-          path: htmlcov/
+          name: transport-testing-report
+          path: |
+            transport-microservice/htmlcov/
+            transport-microservice/coverage.xml
