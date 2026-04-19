@@ -44,13 +44,13 @@ done
 
 if ! $only_ignored_files && [[ "$insertions" -gt 200 ]]; then
   eval "$command"
-  echo -e "\033[0;31m"
+  echo -e "/033[0;31m"
   echo "================================================================================"
   echo "= Looks like you are trying to commit $insertions lines of code                          ="
   echo -n "$(tput bold)"
   echo "= Commit rejected                                                              ="
   echo -n "$(tput sgr0)"
-  echo -e -n "\033[0;31m"
+  echo -e -n "/033[0;31m"
   # If any file was staged (and not ignored),
   # notify the user that it should be in a separate commit
   if ! $ignore; then
@@ -61,6 +61,6 @@ if ! $only_ignored_files && [[ "$insertions" -gt 200 ]]; then
     done
   fi
   echo "================================================================================"
-  echo -e "\033[0m"
+  echo -e "/033[0m"
   exit 1
 fi

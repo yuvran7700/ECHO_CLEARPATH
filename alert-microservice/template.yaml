@@ -1,0 +1,94 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  Environment:
+    Type: String
+    Default: staging
+    AllowedValues:
+      - staging
+      - prod
+  ApiId:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /clearpath/staging/api-id
+
+Mappings:
+  EnvConfig:
+    staging:
+      AlertTableStream: arn:aws:dynamodb:us-east-1:102882775486:table/clearpath-alert-data-staging/stream/2026-03-29T08:13:50.182
+      AlertTableName: clearpath-alert-data-staging
+    prod:
+      AlertTableStream: arn:aws:dynamodb:us-east-1:102882775486:table/clearpath-alert-data/stream/2026-03-23T09:21:48.213
+      AlertTableName: clearpath-alert-data
+
+Globals:
+  Function:
+    Runtime: python3.11
+    CodeUri: .
+    Timeout: 60
+    MemorySize: 128
+    Environment:
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        ALERT_TABLE_NAME: !FindInMap [EnvConfig, !Ref Environment, AlertTableName]
+
+Resources:
+
+  ClassificationLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "classification-lambda-${Environment}"
+      Handler: src.lambda_handlers.classification_handler.classification_handler
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Events:
+        DynamoDBStream:
+          Type: DynamoDB
+          Properties:
+            Stream: !FindInMap [EnvConfig, !Ref Environment, AlertTableStream]
+            StartingPosition: LATEST
+            BatchSize: 10
+            Enabled: true
+
+  TwitterCollectionLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "twitter-collection-lambda-${Environment}"
+      Handler: src.lambda_handlers.twitter_collection_handler.twitter_collection_handler
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AmazonSSMReadOnlyAccess
+      Environment:
+        Variables:
+          TWITTER_API_KEY: "{{resolve:ssm:/clearpath/twitter-api-key}}"
+
+  TwitterCollectionIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ApiId
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt TwitterCollectionLambda.Arn
+      PayloadFormatVersion: "2.0"
+
+  TwitterCollectionRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ApiId
+      RouteKey: "GET /alert/collection"
+      Target: !Sub "integrations/${TwitterCollectionIntegration}"
+
+  TwitterCollectionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt TwitterCollectionLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:us-east-1:102882775486:${ApiId}/*/*/alert/collection"
+
+Outputs:
+  AlertCollectionEndpoint:
+    Description: Alert collection endpoint
+    Value: !Sub "https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/alert/collection"
+  ClassificationLambdaArn:
+    Description: Classification Lambda ARN
+    Value: !GetAtt ClassificationLambda.Arn

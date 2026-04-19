@@ -1,0 +1,62 @@
+import logging
+
+from src.dependencies.s3_client import S3_BUCKET_NAME
+from src.marshellers.raw_adage_marshellers import format_raw_adage
+from src.repositories.s3_repo import read_untouched_file, write_file
+from src.services.raw_extraction import extract_attributes
+from src.utils.raw_utils import find_row
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+
+def raw_lambda_handler(event, context):
+    for record in event.get("Records", []):
+        bucket = str(record["s3"]["bucket"]["name"])
+        if bucket != S3_BUCKET_NAME:
+            logger.error("Error: Incorrect bucket name")
+            continue
+
+        event_type = str(record["eventName"])
+        if not event_type.startswith("ObjectCreated:"):
+            logger.error("Error: Incorrect trigger")
+            continue
+
+        try:
+            key = str(record["s3"]["object"]["key"])
+        except KeyError:
+            logger.error(
+                "Error: Key cannot be found in record, skipping object"
+            )
+            continue
+
+        if not key.startswith("weather_raw/"):
+            logger.error("Error: Wrong bucket folder")
+            continue
+
+        try:
+            res = read_untouched_file(key)
+            body = res["Body"].read()
+            try:
+                csv_content = body.decode("utf-8-sig")
+            except UnicodeDecodeError:
+                csv_content = body.decode("cp1252")
+            csv_reader = find_row(csv_content)
+        except Exception as e:
+            logger.error(f"Failed to read CSV from S3: {str(e)}")
+            continue
+
+        for row in csv_reader:
+            try:
+                attributes = extract_attributes(row)
+                collect_adage = format_raw_adage(
+                    attributes, attributes["date"]
+                )
+                constructed_key = (
+                    f"weather_collected/{attributes['date']}.json"
+                )
+                write_file(constructed_key, collect_adage)
+
+            except Exception as e:
+                logger.error(f"Skipping row {row} due to error: {e}")
+                continue

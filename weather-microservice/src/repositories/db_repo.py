@@ -2,7 +2,7 @@ from src.dependencies.db_client import weather_table
 
 
 def get_record(date: str) -> dict | None:
-    response = weather_table.get_item(Key={"Date": date})
+    response = weather_table.get_item(Key={"date": date})
     return response.get("Item")
 
 

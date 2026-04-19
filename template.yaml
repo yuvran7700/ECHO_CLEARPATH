@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  Environment:
+    Type: String
+    Default: staging
+    AllowedValues:
+      - staging
+      - prod
+
+Resources:
+  ClearpathApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Name: !Sub "clearpath-api-${Environment}"
+      Description: !Sub "ClearPath shared API Gateway - ${Environment}"
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowMethods:
+          - GET
+          - OPTIONS
+        AllowHeaders:
+          - "*"
+
+  ApiIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/clearpath/${Environment}/api-id"
+      Type: String
+      Value: !Ref ClearpathApi
+
+Outputs:
+  ApiId:
+    Description: Clearpath API Gateway ID
+    Value: !Ref ClearpathApi
+    Export:
+      Name: !Sub "clearpath-api-id-${Environment}"
+
+  ApiEndpoint:
+    Description: Clearpath API Gateway endpoint
+    Value: !Sub "https://${ClearpathApi}.execute-api.${AWS::Region}.amazonaws.com"
+    Export:
+      Name: !Sub "clearpath-api-endpoint-${Environment}"

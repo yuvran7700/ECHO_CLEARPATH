@@ -5,6 +5,7 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
+        args: [--unsafe]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.3.0
@@ -16,8 +17,8 @@ repos:
 
   - repo: local
     hooks:
-      - id: line-limit
-        name: Limit commit to 200 lines
-        entry: bash util/pre-commit.sh --ignore-deps
-        language: system
-        always_run: true
+    - id: line-limit
+      name: Limit commit to 200 lines
+      entry: bash util/pre-commit.sh --ignore-deps
+      language: system
+      always_run: true

@@ -1,7 +1,6 @@
 ## Every Time You Start Working
 ```bash
-# 1. Navigate to your microservice and activate its venv
-cd weather-microservice # or alert-microservice / transport-microservice
+
 source venv/bin/activate # or source venv/Scripts/activate for windows user
 
 # 2. (Optional) Pull the latest changes from your develop branch (Good Practice)
@@ -52,7 +51,21 @@ git checkout -b feat/weather/req-num/your-feature-name
    - Ensure at least **one team member** reviews and approves
    - Evidence of comments/discussion must be visible in the PR before merging
 
+**Optional:** To manually run pre-commit checks on specific files or folders:
+```bash
+# Single file
+pre-commit run --files weather-microservice/app.py
 
+# Multiple files
+pre-commit run --files weather-microservice/app.py weather-microservice/utils.py
+
+# Entire folder
+<<<<<<< HEAD
+pre-commit run --files weather-microservice/**/*
+=======
+pre-commit run --files alert-microservice/**/*
+>>>>>>> main
+```
 ---
 
 ### 3. Commit Message Standards
@@ -76,22 +89,27 @@ feat(weather): implement S3 event trigger for Lambda-Cleaner
 To ensure your environment matches the team standards, run:
 > **Windows users:** replace `source venv/bin/activate` with `source venv/Scripts/activate`
 ```bash
-# 1. Navigate to root directory
-cd ClearPath
 
-# 2. Install pre-commit globally
-pip install pre-commit
-pre-commit install
-sh util/setup.sh
+# 1. Clone the new repo
+  git clone git@github.com:yuvran7700/ECHO_CLEARPATH.git
+  cd ECHO_CLEARPATH
 
-# 3. Set up your microservice environment (only for the service you are working on)
-cd weather-microservice                     # or alert-microservice / transport-microservice
-python -m venv venv
-source venv/bin/activate                    # or source venv/Scripts/activate
-pip install -r requirements.txt
-pip install -r ../requirements-dev.txt
-deactivate
-cd ..
+# 2. Create and Activate Virtual Environment (ROOT LEVEL)
+  python -m venv venv
+  source venv/bin/activate
+
+# 3. install dependencies
+  pip install -r requirements.txt
+  # Install dev tools (pre-commit, linters, etc.)
+  pip install -r requirements-dev.txt
+  # Install microservice-specific dependencies (For your microservice)
+  pip install -r weather-microservice/requirements.txt
+  pip install -r alert-microservice/requirements.txt
+  pip install -r transport-microservice/requirements.txt
+
+# 4. Set Up Pre-Commit Hooks
+  pip install pre-commit
+  sh util/setup.sh
 ```
 
 After this, every `git commit` will automatically:

@@ -1,0 +1,43 @@
+{
+  "data_source": "BOM",
+  "dataset_type": "Daily weather observations",
+  "dataset_id": "s3://clearpath-weather-index-v1/weather_collected/3999-12-12.json",
+  "events": [
+    {
+      "event_type": "Daily weather observations",
+      "event_time": {
+        "time_stamp": "3999-12-12T09:00:00",
+        "duration": 86400,
+        "duration_unit": "seconds",
+        "time_zone": "Australia/Sydney"
+      },
+      "event_attributes": {
+        "date": "3999-12-12",
+        "tempMin_C": 20.0,
+        "tempMax_C": 24.7,
+        "rainfall_mm": 0.0,
+        "evaporation_mm": 12.6,
+        "sunshineHours_hours": 7.3,
+        "windWindDir": "NW",
+        "maxWindSpeed_kmh": 35.0,
+        "maxWindTime": "14:01",
+        "9am": {
+          "temp_C": 20.7,
+          "humidity_percent": 35.0,
+          "cloudAmount_oktas": 7.0,
+          "windDirection": "NW",
+          "windSpeed_kmh": 15.0,
+          "mslp_hPa": 1006.6
+        },
+        "3pm": {
+          "temp_C": 22.8,
+          "humidity_percent": 28.0,
+          "cloudAmount_oktas": 8.0,
+          "windDirection": "WNW",
+          "windSpeed_kmh": 30.0,
+          "mslp_hPa": 1002.8
+        }
+      }
+    }
+  ]
+}
