@@ -96,3 +96,16 @@ def batch_write_items(
     with table.batch_writer(**batch_kwargs) as batch:
         for item in items:
             batch.put_item(Item=item)
+
+
+def query_by_date(table, date: str) -> list[dict[str, Any]]:
+    """
+    Query all items with a given date partition key.
+    Returns all records for that date (e.g. all locations).
+    """
+    response = table.query(
+        KeyConditionExpression="#d = :date",
+        ExpressionAttributeNames={"#d": "date"},
+        ExpressionAttributeValues={":date": date},
+    )
+    return response.get("Items", [])

@@ -72,8 +72,11 @@ MONTHS = [
 ]
 
 
-def load_joined_analysis_df(location: str | None = None) -> pd.DataFrame:
-    items = scan_all_items(joined_table)
+def load_joined_analysis_df(
+    location: str | None = None, table=None
+) -> pd.DataFrame:
+    t = table or joined_table
+    items = scan_all_items(t)
     df = pd.DataFrame(items)
     df = prepare_analysis_df(df)
 
@@ -240,12 +243,8 @@ def generate_summary(df: pd.DataFrame) -> dict:
     }
 
 
-def generate_analytics_report(location: str) -> dict:
-    """
-    Orchestrates all analytics for a given location.
-    Single entry point for the analytics lambda handler.
-    """
-    df = load_joined_analysis_df(location=location)
+def generate_analytics_report(location: str, table=None) -> dict:
+    df = load_joined_analysis_df(location=location, table=table)
 
     return {
         "location": location,
@@ -254,18 +253,3 @@ def generate_analytics_report(location: str) -> dict:
         "best_worst_month": disruption_rate_by_month(df),
         "weather_threshold_analysis": disruption_by_weather_condition(df),
     }
-
-
-if __name__ == "__main__":
-    import json
-
-    df = load_joined_analysis_df(location="parramatta")
-
-    # print("=== Best/Worst Days to Travel ===")
-    # print(json.dumps(disruption_rate_by_day_of_week(df), indent=2))
-
-    # print("\n=== Best/Worst Months to Travel ===")
-    # print(json.dumps(disruption_rate_by_month(df), indent=2))
-
-    print("\n=== Weather Condition Breakdown ===")
-    print(json.dumps(disruption_by_weather_condition(df), indent=2))

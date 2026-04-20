@@ -57,9 +57,9 @@ def predict_disruption_risk_from_conditions(
 
 
 def generate_5_day_risk_forecast(
-    lat: float, lon: float, location: str = "sydney"
+    lat: float, lon: float, location: str = "sydney", table=None
 ) -> dict:
-    df = load_joined_analysis_df(location=location)
+    df = load_joined_analysis_df(location=location, table=table)
     disruption_rates = compute_disruption_rates(df)
     forecast_days = get_5_day_daily_forecast(lat, lon)
 
@@ -99,13 +99,3 @@ def generate_5_day_risk_forecast(
         )
 
     return {"lat": lat, "lon": lon, "days": results}
-
-
-if __name__ == "__main__":
-    import json
-
-    lat = -33.8150
-    lon = 151.0011
-
-    result = generate_5_day_risk_forecast(lat, lon, location="parramatta")
-    print(json.dumps(result, indent=2))
