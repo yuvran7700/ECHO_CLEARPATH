@@ -52,6 +52,8 @@ jobs:
 
       # 4. COVERAGE TESTING
       - name: Run coverage
+        env:
+          GOOGLE_WEATHER_API_KEY: ${{ secrets.GOOGLE_WEATHER_API_KEY }}
         run: |
           coverage run -m pytest transport-microservice/tests/
           coverage report
