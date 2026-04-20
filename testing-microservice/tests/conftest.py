@@ -72,3 +72,13 @@ def valid_alert_params():
         "start_date": "2026-03-01",
         "end_date": "2026-03-07",
     }
+
+
+@pytest.fixture(scope="session")
+def disruption_forecast_url(api_base_url):
+    return f"{api_base_url}/transport/disruption-forecast"
+
+
+@pytest.fixture(scope="session")
+def disruption_analytics_url(api_base_url):
+    return f"{api_base_url}/transport/disruption-analytics"
