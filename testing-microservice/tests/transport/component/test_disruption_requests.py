@@ -8,36 +8,29 @@ import requests
 
 
 # ─── DISRUPTION FORECAST 200 SUCCESS ─────────────────────────────────────
-def test_disruption_forecast_valid_request_returns_200(
-    disruption_forecast_url,
-):
-    response = requests.get(disruption_forecast_url)
-    assert response.status_code == 200
+def test_disruption_forecast_valid_request_returns_200(forecast_response):
+    assert forecast_response.status_code == 200
 
 
-def test_disruption_forecast_response_has_body(disruption_forecast_url):
-    response = requests.get(disruption_forecast_url)
-    body = response.json()
+def test_disruption_forecast_response_has_body(forecast_response):
+    body = forecast_response.json()
     assert body is not None
     assert len(body) > 0
 
 
 def test_disruption_forecast_response_has_correct_content_type(
-    disruption_forecast_url,
+    forecast_response,
 ):
-    response = requests.get(disruption_forecast_url)
-    assert response.headers["Content-Type"] == "application/json"
+    assert forecast_response.headers["Content-Type"] == "application/json"
 
 
-def test_disruption_forecast_response_contains_days(disruption_forecast_url):
-    response = requests.get(disruption_forecast_url)
-    assert "days" in response.json()
-    assert isinstance(response.json()["days"], list)
+def test_disruption_forecast_response_contains_days(forecast_response):
+    assert "days" in forecast_response.json()
+    assert isinstance(forecast_response.json()["days"], list)
 
 
-def test_disruption_forecast_returns_5_days(disruption_forecast_url):
-    response = requests.get(disruption_forecast_url)
-    assert len(response.json()["days"]) == 5
+def test_disruption_forecast_returns_5_days(forecast_response):
+    assert len(forecast_response.json()["days"]) == 5
 
 
 def test_disruption_forecast_accepts_lat_lon_params(disruption_forecast_url):
@@ -48,10 +41,9 @@ def test_disruption_forecast_accepts_lat_lon_params(disruption_forecast_url):
     assert response.status_code == 200
 
 
-def test_disruption_forecast_each_day_has_risk_level(disruption_forecast_url):
-    response = requests.get(disruption_forecast_url)
+def test_disruption_forecast_each_day_has_risk_level(forecast_response):
     valid_levels = {"Low", "Moderate", "High", "Very High", "Unknown"}
-    for day in response.json()["days"]:
+    for day in forecast_response.json()["days"]:
         assert day["risk_level"] in valid_levels
 
 
@@ -66,43 +58,34 @@ def test_disruption_forecast_invalid_lat_lon_returns_500(
 
 
 # ─── DISRUPTION ANALYTICS 200 SUCCESS ────────────────────────────────────
-def test_disruption_analytics_valid_request_returns_200(
-    disruption_analytics_url,
-):
-    response = requests.get(disruption_analytics_url)
-    assert response.status_code == 200
+def test_disruption_analytics_valid_request_returns_200(analytics_response):
+    assert analytics_response.status_code == 200
 
 
-def test_disruption_analytics_response_has_body(disruption_analytics_url):
-    response = requests.get(disruption_analytics_url)
-    body = response.json()
+def test_disruption_analytics_response_has_body(analytics_response):
+    body = analytics_response.json()
     assert body is not None
     assert len(body) > 0
 
 
 def test_disruption_analytics_response_has_correct_content_type(
-    disruption_analytics_url,
+    analytics_response,
 ):
-    response = requests.get(disruption_analytics_url)
-    assert response.headers["Content-Type"] == "application/json"
+    assert analytics_response.headers["Content-Type"] == "application/json"
 
 
 def test_disruption_analytics_response_contains_required_keys(
-    disruption_analytics_url,
+    analytics_response,
 ):
-    response = requests.get(disruption_analytics_url)
-    body = response.json()
+    body = analytics_response.json()
     assert "overall" in body
     assert "best_worst_day_of_week" in body
     assert "best_worst_month" in body
     assert "weather_threshold_analysis" in body
 
 
-def test_disruption_analytics_overall_has_required_fields(
-    disruption_analytics_url,
-):
-    response = requests.get(disruption_analytics_url)
-    overall = response.json()["overall"]
+def test_disruption_analytics_overall_has_required_fields(analytics_response):
+    overall = analytics_response.json()["overall"]
     assert "total_days" in overall
     assert "total_disruption_days" in overall
     assert "overall_disruption_rate" in overall
@@ -110,33 +93,29 @@ def test_disruption_analytics_overall_has_required_fields(
     assert "data_to" in overall
 
 
-def test_disruption_analytics_day_of_week_has_7_days(disruption_analytics_url):
-    response = requests.get(disruption_analytics_url)
-    by_day = response.json()["best_worst_day_of_week"]["all_time"]["by_day"]
+def test_disruption_analytics_day_of_week_has_7_days(analytics_response):
+    by_day = analytics_response.json()["best_worst_day_of_week"]["all_time"][
+        "by_day"
+    ]
     assert len(by_day) == 7
 
 
-def test_disruption_analytics_has_best_and_worst_day(disruption_analytics_url):
-    response = requests.get(disruption_analytics_url)
-    all_time = response.json()["best_worst_day_of_week"]["all_time"]
+def test_disruption_analytics_has_best_and_worst_day(analytics_response):
+    all_time = analytics_response.json()["best_worst_day_of_week"]["all_time"]
     assert "best" in all_time
     assert "worst" in all_time
 
 
-def test_disruption_analytics_has_best_and_worst_month(
-    disruption_analytics_url,
-):
-    response = requests.get(disruption_analytics_url)
-    all_time = response.json()["best_worst_month"]["all_time"]
+def test_disruption_analytics_has_best_and_worst_month(analytics_response):
+    all_time = analytics_response.json()["best_worst_month"]["all_time"]
     assert "best" in all_time
     assert "worst" in all_time
 
 
 def test_disruption_analytics_weather_threshold_has_required_keys(
-    disruption_analytics_url,
+    analytics_response,
 ):
-    response = requests.get(disruption_analytics_url)
-    weather = response.json()["weather_threshold_analysis"]
+    weather = analytics_response.json()["weather_threshold_analysis"]
     assert "temperature" in weather
     assert "wind" in weather
     assert "rainfall" in weather
