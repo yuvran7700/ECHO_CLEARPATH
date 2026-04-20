@@ -1,5 +1,6 @@
 import boto3
 import pytest
+import requests
 
 
 def get_ssm_parameter(name: str) -> str:
@@ -72,3 +73,23 @@ def valid_alert_params():
         "start_date": "2026-03-01",
         "end_date": "2026-03-07",
     }
+
+
+@pytest.fixture(scope="session")
+def disruption_forecast_url(api_base_url):
+    return f"{api_base_url}/transport/disruption-forecast"
+
+
+@pytest.fixture(scope="session")
+def disruption_analytics_url(api_base_url):
+    return f"{api_base_url}/transport/disruption-analytics"
+
+
+@pytest.fixture(scope="session")
+def forecast_response(disruption_forecast_url):
+    return requests.get(disruption_forecast_url)
+
+
+@pytest.fixture(scope="session")
+def analytics_response(disruption_analytics_url):
+    return requests.get(disruption_analytics_url)

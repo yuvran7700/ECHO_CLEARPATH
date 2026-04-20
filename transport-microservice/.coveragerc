@@ -1,0 +1,6 @@
+[run]
+omit =
+    src/dependencies/s3_client.py
+    src/repositories/s3_repo.py
+    src/scripts/backfill_weather_locations.py
+    src/marshallers/analysis_marshaller.py
