@@ -16,6 +16,7 @@ from src.dependencies.db_client import (
 from src.repositories.db_repo import (
     batch_write_items,
     get_record,
+    query_by_date,
     scan_all_items,
 )
 
@@ -43,8 +44,9 @@ def build_joined_item(
     return joined_item
 
 
-def run_join() -> None:
+def run_join() -> None:  # pragma: no cover
     """
+    BACKFILL ONLY — do not use in production stream triggers.
     Execute the full LEFT JOIN from weather-location to alerts and store
     the result in the joined DynamoDB table.
     """
@@ -99,6 +101,46 @@ def run_join() -> None:
 
     except Exception:
         logger.exception("Join job failed")
+        raise
+
+
+def run_join_for_date(
+    date: str,
+    weather_table=None,
+    alerts_table=None,
+    target_joined_table=None,
+) -> None:
+    logger.info(f"Running targeted join for date: {date}")
+
+    wt = weather_table or weather_location_table
+    at = alerts_table or alert_table
+    jt = target_joined_table or joined_table
+
+    try:
+        weather_items_for_date = query_by_date(wt, date)
+
+        if not weather_items_for_date:
+            logger.warning(f"No weather records found for date: {date}")
+            return
+
+        alert_item = get_record(at, date)
+        joined_items = [
+            build_joined_item(weather_item, alert_item)
+            for weather_item in weather_items_for_date
+        ]
+
+        batch_write_items(
+            jt,
+            joined_items,
+            overwrite_by_pkeys=["date", "location"],
+        )
+
+        logger.info(
+            f"Join complete for {date} - {len(joined_items)} rows written"
+        )
+
+    except Exception:
+        logger.exception(f"Targeted join failed for date: {date}")
         raise
 
 
