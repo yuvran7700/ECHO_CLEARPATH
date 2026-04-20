@@ -46,6 +46,8 @@ jobs:
 
       # 3. INTEGRATION TESTING
       - name: Run integration tests
+        env:
+          GOOGLE_WEATHER_API_KEY: ${{ secrets.GOOGLE_WEATHER_API_KEY }}
         run: pytest transport-microservice/tests/integration/
 
       # 4. COVERAGE TESTING
