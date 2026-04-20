@@ -1,0 +1,10 @@
+pre-commit==3.6.0
+ruff==0.3.0
+coverage==7.4.1
+pytest==8.0.0
+boto3
+python-dotenv
+pandas==2.2.2
+numpy==1.26.4
+requests
+python-dateutil

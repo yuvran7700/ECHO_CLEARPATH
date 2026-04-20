@@ -1,0 +1,76 @@
+name: Transport CD Staging
+
+on:
+  push:
+    branches:
+      - "develop/transport-microservice"
+    paths:
+      - "transport-microservice/**"
+      - "testing-microservice/**"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up SAM
+        uses: aws-actions/setup-sam@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: SAM Build
+        run: sam build
+        working-directory: transport-microservice
+
+      - name: SAM Deploy Staging
+        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --config-env staging
+        working-directory: transport-microservice
+
+      - name: Install testing dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r testing-microservice/requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Create reports directory
+        run: mkdir -p testing-microservice/reports
+
+      - name: Run transport staging tests
+        env:
+          GOOGLE_WEATHER_API_KEY: ${{ secrets.GOOGLE_WEATHER_API_KEY }}
+        run: |
+          pytest testing-microservice/tests/transport \
+            --env staging \
+            --junitxml=testing-microservice/reports/transport-staging-results.xml
+
+      - name: Generate transport staging report
+        run: |
+          python testing-microservice/generate_report.py \
+            --xml testing-microservice/reports/transport-staging-results.xml \
+            --service transport \
+            --env staging \
+            --out testing-microservice/reports/transport-staging-report.txt
+
+      - name: Upload transport staging test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: transport-staging-test-report
+          path: |
+            testing-microservice/reports/transport-staging-results.xml
+            testing-microservice/reports/transport-staging-report.txt

@@ -7,6 +7,7 @@ on:
     paths:
       - "weather-microservice/**"
       - "alert-microservice/**"
+      - "transport-microservice/**"
       - "testing-microservice/**"
       -  ".github/workflows/**"
   workflow_dispatch:
@@ -138,3 +139,65 @@ jobs:
           path: |
             testing-microservice/reports/alert-prod-results.xml
             testing-microservice/reports/alert-prod-report.txt
+
+  deploy-transport-prod:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up SAM
+        uses: aws-actions/setup-sam@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: SAM Build
+        run: sam build
+        working-directory: transport-microservice
+
+      - name: SAM Deploy Prod
+        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --config-env prod
+        working-directory: transport-microservice
+
+      - name: Install testing dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r testing-microservice/requirements.txt
+
+      - name: Create reports directory
+        run: mkdir -p testing-microservice/reports
+
+      - name: Run transport smoke tests
+        run: |
+          cd testing-microservice && pytest tests/transport/smoke \
+            --env prod \
+            --junitxml=reports/transport-prod-results.xml
+
+      - name: Generate transport prod report
+        if: always()
+        run: |
+          cd testing-microservice && python generate_report.py \
+            --xml reports/transport-prod-results.xml \
+            --service transport \
+            --env prod \
+            --out reports/transport-prod-report.txt
+
+      - name: Upload transport prod test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: transport-prod-test-report
+          path: |
+            testing-microservice/reports/transport-prod-results.xml
+            testing-microservice/reports/transport-prod-report.txt

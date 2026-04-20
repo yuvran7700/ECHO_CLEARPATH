@@ -1,0 +1,27 @@
+version = 0.1
+
+[staging.global.parameters]
+region = "us-east-1"
+
+[staging.deploy.parameters]
+stack_name = "transport-microservice-staging"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+s3_prefix = "transport-microservice-staging"
+confirm_changeset = false
+parameter_overrides = "Environment=staging ApiId=/clearpath/staging/api-id WeatherLocationTableStreamArn=/clearpath/staging/weather-location-table-stream-arn AlertTableStreamArn=/clearpath/staging/alert-table-stream-arn"
+image_repositories = []
+
+[prod.global.parameters]
+region = "us-east-1"
+
+[prod.deploy.parameters]
+stack_name = "transport-microservice-prod"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+s3_prefix = "transport-microservice-prod"
+confirm_changeset = true
+parameter_overrides = "Environment=prod ApiId=/clearpath/prod/api-id WeatherLocationTableStreamArn=/clearpath/prod/weather-location-table-stream-arn AlertTableStreamArn=/clearpath/prod/alert-table-stream-arn"
+image_repositories = []
