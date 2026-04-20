@@ -13,12 +13,12 @@ class TestPrepareAnalysisDf:
 
     def test_disruption_true_string_becomes_bool_true(self, raw_dynamodb_df):
         result = prepare_analysis_df(raw_dynamodb_df)
-        assert result["disruption"].iloc[0] is True
+        assert bool(result["disruption"].iloc[0]) is True
         assert result["disruption"].dtype == bool
 
     def test_disruption_false_string_becomes_bool_false(self, raw_dynamodb_df):
         result = prepare_analysis_df(raw_dynamodb_df)
-        assert result["disruption"].iloc[1] is False
+        assert bool(result["disruption"].iloc[1]) is False
 
     def test_rainfall_mm_is_numeric(self, raw_dynamodb_df):
         result = prepare_analysis_df(raw_dynamodb_df)
@@ -53,7 +53,7 @@ class TestPrepareAnalysisDf:
             ]
         )
         result = prepare_analysis_df(df)
-        assert result["disruption"].iloc[0] is True
+        assert bool(result["disruption"].iloc[0]) is True
 
     def test_handles_uppercase_disruption(self):
         df = pd.DataFrame(
@@ -66,4 +66,4 @@ class TestPrepareAnalysisDf:
             ]
         )
         result = prepare_analysis_df(df)
-        assert result["disruption"].iloc[0] is True
+        assert bool(result["disruption"].iloc[0]) is True
