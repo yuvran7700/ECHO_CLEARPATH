@@ -1,4 +1,4 @@
-# ClearPath — Backend Microservices
+# ClearPath Microservices API — Backend
 
 > **Event-driven intelligence platform for Sydney train disruption forecasting.**
 > Live site -> [clearpath.vercel.app](https://echo-clearpath-frontend-2a3qp1r82-yuvran7700s-projects.vercel.app/)
@@ -7,9 +7,11 @@
 **Tools used:** AWS (Lambda, DynamoDB, S3, API Gateway, SAM) · GitHub Actions · Python (scikit-learn, pandas, boto3) · Twitter.io API · Google Weather API
 
 ## Key Technical Highlights
-- **ML-powered classification** — trained a TF-IDF + Logistic Regression model to classify train disruption tweets as `cancelled`, `delayed`, or `unknown`, replacing a naive keyword matcher
-- **Event-driven pipeline** — every microservice is triggered by upstream events (S3 uploads, DynamoDB Streams, scheduled Lambdas) with no polling
-- **5-day disruption forecasting** — correlates historical weather/disruption patterns against live weather forecasts to generate forward-looking risk scores
+- **5-day AI-powered disruption forecasting** — correlates historical weather/disruption patterns against live weather data to generate forward-looking risk scores
+- **Machine learning classification** — trained a TF-IDF + Logistic Regression model to classify train disruption status.
+- **Event-driven microservices architecture** — three independently deployed AWS microservices communicate entirely via event triggers (S3 uploads, DynamoDB Streams, scheduled Lambdas), exposing results through a shared REST API Gateway
+- **DevOps & CI/CD pipeline** — two-tier staging/production cloud deployment via AWS SAM; per-microservice CI pipelines enforce linting, TDD-based unit and integration testing on every PR. Automated deployment to staging and/or production via GitHub Environments.
+- **Cloud-native infrastructure** — fully serverless on AWS (Lambda, DynamoDB, S3, API Gateway, SSM), defined entirely as Infrastructure as Code via SAM and versioned through the SDLC alongside application code
 
 ---
 
