@@ -7,18 +7,17 @@ severity labels, and applies weighted disruption rates from the analytics
 service to produce a risk score and risk level per day.
 """
 
-from src.dependencies.google_weather_client import get_5_day_daily_forecast
-from src.services.analytics_service import (
-    compute_disruption_rates,
-    load_joined_analysis_df,
+import json
+
+from src.dependencies.s3_client import ANALYTICS_BUCKET, s3_client
+from src.dependencies.weather_client import (
+    get_5_day_daily_forecast,  # changed: new client
 )
 
 WEIGHTS = {
-    "tempSeverity": 0.40,
-    "rainSeverity": 0.20,
-    "windSeverity": 0.20,
-    "humiditySeverity": 0.10,
-    "sunSeverity": 0.10,
+    "tempSeverity": 0.60,
+    "rainSeverity": 0.25,
+    "windSeverity": 0.15,
 }
 
 
@@ -57,10 +56,12 @@ def predict_disruption_risk_from_conditions(
 
 
 def generate_5_day_risk_forecast(
-    lat: float, lon: float, location: str = "sydney", table=None
+    lat: float, lon: float, location: str = "parramatta"
 ) -> dict:
-    df = load_joined_analysis_df(location=location, table=table)
-    disruption_rates = compute_disruption_rates(df)
+    obj = s3_client.get_object(
+        Bucket=ANALYTICS_BUCKET, Key=f"{location}/disruption_rates.json"
+    )
+    disruption_rates = json.loads(obj["Body"].read().decode("utf-8"))
     forecast_days = get_5_day_daily_forecast(lat, lon)
 
     results = []
@@ -70,8 +71,6 @@ def generate_5_day_risk_forecast(
             "tempSeverity": day["tempSeverity"],
             "rainSeverity": day["rainSeverity"],
             "windSeverity": day["windSeverity"],
-            "humiditySeverity": day["humiditySeverity"],
-            "sunSeverity": day["sunSeverity"],
         }
         prediction = predict_disruption_risk_from_conditions(
             conditions, disruption_rates
@@ -80,12 +79,9 @@ def generate_5_day_risk_forecast(
         results.append(
             {
                 "date": day["date"],
-                "weather_summary": day["weather_summary"],
                 "tempSeverity": day["tempSeverity"],
                 "rainSeverity": day["rainSeverity"],
                 "windSeverity": day["windSeverity"],
-                "humiditySeverity": day["humiditySeverity"],
-                "sunSeverity": day["sunSeverity"],
                 "risk": prediction["risk"],
                 "risk_level": prediction["risk_level"],
                 "message": (
