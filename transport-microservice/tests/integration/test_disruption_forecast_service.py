@@ -1,5 +1,4 @@
 # tests/integration/test_disruption_forecast_service.py
-import boto3
 import pytest
 from src.services.disruption_forecast_service import (
     generate_5_day_risk_forecast,
@@ -9,19 +8,12 @@ VALID_RISK_LEVELS = {"Low", "Moderate", "High", "Very High", "Unknown"}
 
 
 @pytest.fixture(scope="module")
-def live_table(joined_table_name):
-    dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
-    return dynamodb.Table(joined_table_name)
-
-
-@pytest.fixture(scope="module")
-def live_forecast(live_table):
+def live_forecast():
     """Call the real forecast service once for all tests in this module."""
     return generate_5_day_risk_forecast(
         lat=-33.8150,
         lon=151.0011,
         location="parramatta",
-        table=live_table,
     )
 
 
@@ -36,12 +28,9 @@ class TestGenerate5DayRiskForecast:
     def test_each_day_has_required_fields(self, live_forecast):
         required_fields = [
             "date",
-            "weather_summary",
             "tempSeverity",
             "rainSeverity",
             "windSeverity",
-            "humiditySeverity",
-            "sunSeverity",
             "risk",
             "risk_level",
             "message",
@@ -49,6 +38,14 @@ class TestGenerate5DayRiskForecast:
         for day in live_forecast["days"]:
             for field in required_fields:
                 assert field in day, f"Missing field: {field}"
+
+    def test_each_day_has_no_dropped_fields(self, live_forecast):
+        dropped_fields = ["weather_summary", "humiditySeverity", "sunSeverity"]
+        for day in live_forecast["days"]:
+            for field in dropped_fields:
+                assert (
+                    field not in day
+                ), f"Dropped field still present: {field}"
 
     def test_risk_level_is_valid(self, live_forecast):
         for day in live_forecast["days"]:
@@ -72,17 +69,8 @@ class TestGenerate5DayRiskForecast:
         valid_temp = {"Hot", "Warm", "Mild", "Cold"}
         valid_rain = {"Heavy rain", "Moderate rain", "Light rain", "No rain"}
         valid_wind = {"Gale", "Windy", "Breezy", "Calm"}
-        valid_humidity = {
-            "Extreme Humidity",
-            "High Humidity",
-            "Moderate Humidity",
-            "Low Humidity",
-        }
-        valid_sun = {"Cloudy", "Partly Cloudy", "Sunny"}
 
         for day in live_forecast["days"]:
             assert day["tempSeverity"] in valid_temp
             assert day["rainSeverity"] in valid_rain
             assert day["windSeverity"] in valid_wind
-            assert day["humiditySeverity"] in valid_humidity
-            assert day["sunSeverity"] in valid_sun
