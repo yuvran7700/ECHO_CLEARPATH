@@ -1,18 +1,27 @@
 # transport-microservice/src/lambda_handlers/analytics_lambda_handler.py
 import json
 
-from src.services.analytics_service import generate_analytics_report
+from src.dependencies.s3_client import ANALYTICS_BUCKET, s3_client
 
-LOCATION = "parramatta"
+KEY = "parramatta/analytics.json"
 
 
 def analytics_lambda_handler(event, context):
     try:
-        result = generate_analytics_report(LOCATION)
+        obj = s3_client.get_object(Bucket=ANALYTICS_BUCKET, Key=KEY)
+        body = obj["Body"].read().decode("utf-8")
         return {
             "statusCode": 200,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps(result),
+            "body": body,
+        }
+    except s3_client.exceptions.NoSuchKey:
+        return {
+            "statusCode": 503,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps(
+                {"error": "Analytics not yet generated. Try again later."}
+            ),
         }
     except Exception as e:
         return {
