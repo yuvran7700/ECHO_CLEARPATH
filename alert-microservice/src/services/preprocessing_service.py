@@ -10,62 +10,33 @@ responsible for:
 """
 
 import logging
+import os
 
+import joblib
 from src.repositories.db_repo import update_record
 
 # Configure logger for this module
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+_MODEL_PATH = os.path.join(
+    os.path.dirname(__file__), "../ml/model/tweet_classifier.pkl"
+)
+_classifier = joblib.load(_MODEL_PATH)
+
 
 def classify_tweet(text: str) -> str:
     """
-    Classify tweet text into a disruption category.
+    Classify tweet text using TF-IDF + Logistic Regression model.
 
     Args:
         text (str): Tweet text to classify.
 
     Returns:
-        str: Predicted classification label.
+        str: Predicted classification label (cancelled / delayed / unknown).
     """
-    # Normalize text for case-insensitive keyword matching
-    text = text.lower()
-
-    # Keywords that indicate full cancellation or service suspension
-    cancelled_keywords = [
-        "cancelled",
-        "canceled",
-        "suspended",
-        "no service",
-        "not running",
-        "shutdown",
-        "closed",
-    ]
-
-    # Keywords that indicate delays or partial disruption
-    delayed_keywords = [
-        "delayed",
-        "delay",
-        "slow",
-        "disruption",
-        "late",
-        "reduced",
-        "minor delays",
-        "part suspended",
-    ]
-
-    # Check for cancellation-related keywords first
-    for keyword in cancelled_keywords:
-        if keyword in text:
-            return "cancelled"
-
-    # Check for delay-related keywords next
-    for keyword in delayed_keywords:
-        if keyword in text:
-            return "delayed"
-
-    # Default fallback if no keywords match
-    return "unknown"
+    prediction = _classifier.predict([text])
+    return prediction[0]
 
 
 def classify_record(record: dict) -> bool:

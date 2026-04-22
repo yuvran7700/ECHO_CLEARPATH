@@ -42,8 +42,17 @@ Globals:
         WEATHER_LOCATION_TABLE_NAME: !FindInMap [EnvConfig, !Ref Environment, WeatherLocationTableName]
         ALERT_TABLE_NAME: !FindInMap [EnvConfig, !Ref Environment, AlertTableName]
         GOOGLE_WEATHER_API_KEY: !Sub "{{resolve:ssm:/clearpath/${Environment}/google-weather-api-key}}"
+        ANALYTICS_BUCKET_NAME: !Ref AnalyticsBucket
 
 Resources:
+
+  # ---- S3 Bucket for Analytics ----
+  AnalyticsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub "clearpath-analytics-${Environment}"
 
   # ---- Join Lambda ----
   JoinLambda:
@@ -75,6 +84,8 @@ Resources:
       Handler: src.lambda_handlers.correlation_lambda_handler.correlation_lambda_handler
       Policies:
         - AmazonDynamoDBFullAccess
+        - S3ReadPolicy:
+            BucketName: !Ref AnalyticsBucket
 
   CorrelationIntegration:
     Type: AWS::ApiGatewayV2::Integration
@@ -99,7 +110,7 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub "arn:aws:execute-api:us-east-1:102882775486:${ApiId}/*/*/transport/disruption-forecast"
 
-  # ---- Analytics Lambda ----
+  # ---- Analytics Lambda (reads from S3) ----
   AnalyticsLambda:
     Type: AWS::Serverless::Function
     Properties:
@@ -107,6 +118,8 @@ Resources:
       Handler: src.lambda_handlers.analytics_lambda_handler.analytics_lambda_handler
       Policies:
         - AmazonDynamoDBFullAccess
+        - S3ReadPolicy:
+            BucketName: !Ref AnalyticsBucket
 
   AnalyticsIntegration:
     Type: AWS::ApiGatewayV2::Integration
@@ -130,6 +143,37 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub "arn:aws:execute-api:us-east-1:102882775486:${ApiId}/*/*/transport/disruption-analytics"
+
+  # ---- Analytics Scheduled Lambda (writes to S3 weekly) ----
+  AnalyticsScheduledLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "analytics-scheduled-lambda-${Environment}"
+      Handler: src.lambda_handlers.analytics_scheduled_lambda_handler.analytics_scheduled_lambda_handler
+      Timeout: 300
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - S3CrudPolicy:
+            BucketName: !Ref AnalyticsBucket
+
+  AnalyticsWeeklyRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub "analytics-weekly-trigger-${Environment}"
+      Description: "Weekly analytics recalc — writes JSON to S3. Disable after 2026-05-15."
+      ScheduleExpression: "cron(0 0 ? * MON *)"
+      State: ENABLED
+      Targets:
+        - Id: AnalyticsScheduledLambdaTarget
+          Arn: !GetAtt AnalyticsScheduledLambda.Arn
+
+  AnalyticsScheduledLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt AnalyticsScheduledLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt AnalyticsWeeklyRule.Arn
 
 Outputs:
   DisruptionForecastEndpoint:

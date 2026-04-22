@@ -1,6 +1,6 @@
 """
 transport-microservice/src/dependencies/s3_client.py
-S3 client initialisation and connection testing.s
+S3 client initialisation and connection testing.
 """
 
 import os
@@ -12,6 +12,9 @@ load_dotenv()
 
 AWS_REGION = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
 ANALYSIS_BUCKET = "clearpath-analysis"
+ANALYTICS_BUCKET = os.getenv(
+    "ANALYTICS_BUCKET_NAME", "clearpath-analytics-staging"
+)
 
 # Initialise S3 client
 s3_client = boto3.client("s3", region_name=AWS_REGION)
